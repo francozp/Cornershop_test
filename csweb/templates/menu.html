@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block web_title %}Meal Delivery - Menú{% endblock %}
+
+{% block title %}Menú{% endblock %}
+
+{% block content %}
+<form>
+    <div class="form-group row">
+        <label for="example-date-input" class="col-2 col-form-label">Fecha</label>
+        <div class="col-10">
+          <input class="form-control" type="date" value="2011-08-19" id="example-date-input">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="example-date-input" class="col-2 col-form-label">Plato Principal</label>
+        <div class="col-10">
+            <input name="user_name"class="form-control "id="new-user">
+        </div>
+      </div>
+      
+      <div class="form-group row">
+        <div class="col-2">
+                <div class="form-check">  
+                    <input type="checkbox" class="form-check-input" checked="checked" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">Ensalada</label>
+                </div>
+        </div>
+        </div>
+      
+      
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" checked="checked" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Postre</label>
+      </div>    
+      <div class="input-group">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  Action 
+                  <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+              </ul>
+            </div><!-- /btn-group -->
+            <input type="text" class="form-control">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">Go!</button>
+            </span>
+          </div>
+  </form>
+{% endblock %}
