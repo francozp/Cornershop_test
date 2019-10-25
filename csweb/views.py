@@ -20,7 +20,10 @@ class MenuView(FormView):
             form = MenuForm(self.request.POST or None)
             data["form"] = form
             if form.is_valid():
+                print(str(form.cleaned_data['date']).split()[0])
                 print(form.cleaned_data['maindish'])
+                print(form.cleaned_data['salad'])
+                print(form.cleaned_data['dessert'])
                 """pedido = Pedido.objects.create(obra=Obra.objects.get(id=obra),
                                                usuario=self.request.user,
                                                fecha=timezone.now(),
@@ -32,15 +35,8 @@ class MenuView(FormView):
         else:
             form = MenuForm()   
             data["form"] = form
-            print("la concha del mono")
         data["date"] = datetime.datetime.now()
         return data
-
-    def render_to_response(self, context):
-        return super(MenuView, self).render_to_response(context)
     
     def form_valid(self, form):
-        context = self.get_context_data()
-        print(context)
-        return super(MenuView, self).form_valid(form)
-    
+        return self.render_to_response(self.get_context_data(form=form))
