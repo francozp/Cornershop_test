@@ -22,8 +22,8 @@ class MenuView(FormView):
             datos = MenuFormSet(self.request.POST)
             if datos.is_valid():
                 maxforms = int(self.request.POST['form-TOTAL_FORMS'])
-                #date = self.request.POST['date']
-                #print(date)
+                date = self.request.POST['date']
+                print(date)
                 print(maxforms)
                 """pedido = Pedido.objects.create(obra=Obra.objects.get(id=obra),
                                                usuario=self.request.user,

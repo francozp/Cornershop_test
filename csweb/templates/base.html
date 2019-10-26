@@ -17,8 +17,8 @@
 
   {% block script %}
   {% endblock %}
-
   <link rel="stylesheet" href="{%  static "css/sb-admin-2.css" %}">
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 </head>
 
 <body id="page-top">
@@ -157,17 +157,6 @@
       </div>
     </div>
   </div>
- 
-
-  <!-- Custom scripts for all pages-->
-  <script src="{% static "js/sb-admin-2.min.js" %}"></script>
-
-  <!-- Page level plugins -->
-  <script src="{% static "vendor/chart.js/Chart.min.js" %}"></script>
-
-  <!-- Page level custom scripts -->
-  <script src="{% static "js/demo/chart-area-demo.js" %}"></script>
-  <script src="{% static "js/demo/chart-pie-demo.js" %}"></script>
   {% block jsincludes %}
   {% endblock %}
 </body>

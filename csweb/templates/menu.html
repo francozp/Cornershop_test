@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block script %}
-<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js" integrity="sha256-VBLiveTKyUZMEzJd6z2mhfxIqz3ZATCuVMawPZGzIfA=" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 {% endblock %}
 {% load widget_tweaks %}
 {% block web_title %}Meal Delivery - Menú{% endblock %}
@@ -17,10 +17,9 @@
     <form action="{% url 'Menu' %}" method="post">
       {% csrf_token %}
       {{ options.management_form }}
-      
+      <label for ="date"><b> Fecha &nbsp</b> </label>
       <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-        <label for ="date">Fecha: </label>
-          <input type="text" id = "date" name = "date" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+          <input type="text" id = "date" name = "date" class="datetimepicker-input" data-target="#datetimepicker1"/>
           <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
           </div>
@@ -53,8 +52,15 @@
           {% endfor %}
         </tbody>
         </table>
-      <a href="#" class="btn btn-fill btn-lg add_option"><i class="mdi mdi-plus-circle-outline"></i> Agregar otra opción</a>
-      <input type="submit" value="Crear Menú" class="btn btn-block btn-primary btn-lg">
+        <div class="row">
+            <div class="col-4">
+                <a href="#" class="btn btn-dark btn-lg add_option"><i class="fa fa-plus-circle"></i> Agregar otra opción</a>
+            </div>
+            <div class="col-4"></div>
+            <div class="col-4">
+                <input style="float: right;" type="submit" value="Crear Menú" class="btn btn-danger btn-lg">
+            </div>
+          </div>
     </form>
 
 {% endblock %}
