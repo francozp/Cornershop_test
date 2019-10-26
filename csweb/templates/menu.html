@@ -16,38 +16,49 @@
     
     <form action="{% url 'Menu' %}" method="post">
       {% csrf_token %}
-      <div class="row">
-        <div class="col">
-            {{ form.date.label_tag }}
-          <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-            {{ form.date }}
-            <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-              <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-            </div>
+      {{ options.management_form }}
+      
+      <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+        <label for ="date">Fecha: </label>
+          <input type="text" id = "date" name = "date" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+          <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
           </div>
         </div>
-        <div class="col">
-          {{ form.maindish.label_tag }}
-          {{ form.maindish | add_class:"form-control" }}
-        </div>
-      </div>
       <br>
-      <div class="custom-control custom-checkbox">
-          {{ form.salad }}
-          <label class="custom-control-label" for="{{ form.salad.id_for_label }}">{{ form.salad.label }}</label>
-      </div>
-      <div class="custom-control custom-checkbox">
-          {{ form.dessert }}
-          <label class="custom-control-label" for="{{ form.dessert.id_for_label }}">{{ form.dessert.label }}</label>
-      </div>
-      <br>
+      <table class="table table-striped">
+        <thead>
+        <tr>
+            <th style = "text-align: center">Opción</th>
+            <th style = "text-align: center">{{ form.maindish.label }}</th>
+            <th style = "text-align: center">{{ form.salad.label }}</th>
+            <th style = "text-align: center">{{ form.dessert.label }}</th>
+        </tr>
+        </thead>
+        <tbody id="tablaOpciones">
+            {% for form in options %}
+            <tr id=0>
+            <td style = "text-align: center">1</td>
+            <td>
+                {{ form.maindish | add_class:'form-control' }}
+            </td>
+    
+            <td style="text-align: center">
+                {{ form.salad }}
+            </td>
+            <td style="text-align: center">
+                {{ form.dessert }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        </table>
+      <a href="#" class="btn btn-fill btn-lg add_option"><i class="mdi mdi-plus-circle-outline"></i> Agregar otra opción</a>
       <input type="submit" value="Crear Menú" class="btn btn-block btn-primary btn-lg">
     </form>
-    <script type="text/javascript">
-      $(function () {
-        $("#datetimepicker1").datetimepicker({
-          format: 'DD/MM/YY',
-        });
-      });
-    </script>
+
+{% endblock %}
+
+{% block jsincludes %}
+    <script src="{% static "js/scriptMenu.js" %}"></script>
 {% endblock %}
