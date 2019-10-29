@@ -13,7 +13,18 @@
 {% block title %}Menú{% endblock %}
 
 {% block content %}
-
+    <!-- Verify date error messages to alert the user -->
+    {% if date_error %}
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Ups!</strong> Ya existe un menú para este día</a>.
+    </div>
+    {% elif date_error is not True and date_error is not None %}
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Yay!</strong> Se ha creado el menú exitosamente</a>.
+    </div>
+    {% endif %}
     <!-- Main Form, use to the creation of the menu -->
     <form action="{% url 'Menu' %}" method="post">
       {% csrf_token %}

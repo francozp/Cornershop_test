@@ -5,7 +5,6 @@ from .models import *
 from .forms import *
 import uuid
 import datetime
-
 # ------------ MAIN TO-DO List ----------------
 # TODO: Create the main screen
 # TODO: Create the user control
@@ -21,6 +20,8 @@ class MenuView(FormView):
     # Main form class for the view
     def get_context_data(self, **kwargs):
         data = super(MenuView, self).get_context_data(**kwargs)
+        # Date error does not exist
+        data["date_error"] = None
         if self.request.POST:
             modal_data = ModalFormSet(self.request.POST)
             # This form is use to take data from the modal to create a new dish
@@ -34,22 +35,29 @@ class MenuView(FormView):
             else:
                 print(modal_data.errors)
             if form_data.is_valid():
-                # If the main form data is vald, then the menu, dish, and options are created
-                maxforms = int(self.request.POST['form-TOTAL_FORMS'])
                 date = str(self.request.POST['date']).split("/")
                 date = date[2] + "-" + date[1] +"-" + date[0]
                 # The date is parsed to be compatible with the MySql schema
-                idmenu = str(uuid.uuid4())
-                menu = Menu.objects.create(menu_id = idmenu, fecha = date)
-                for i in range(maxforms+1):
-                    # Iterate over the different options and create them
-                    maindish = str(self.request.POST['form-{0}-maindish'.format(i)])
-                    actual_dishes = MainDish.objects.filter(description = maindish)
-                    idmain = actual_dishes[0].main_id
-                    idoption = str(uuid.uuid4())
-                    salad = bool(self.request.POST.get('form-{0}-salad'.format(i),False))
-                    dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
-                    option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert)
+                date_verify = Menu.objects.filter(fecha = date)
+                # Verify if there is a menu created for the date 
+                if(date_verify):
+                    data["date_error"] = True
+                else:
+                    data["date_error"] = False
+                    # If the main form data is vald, then the menu, dish, and options are created
+                    maxforms = int(self.request.POST['form-TOTAL_FORMS'])
+                    idmenu = str(uuid.uuid4())
+                    menu = Menu.objects.create(menu_id = idmenu, fecha = date)
+                    # TODO: Fix options not created
+                    for i in range(maxforms):
+                        # Iterate over the different options and create them
+                        maindish = str(self.request.POST['form-{0}-maindish'.format(i)])
+                        actual_dishes = MainDish.objects.filter(description = maindish)
+                        idmain = actual_dishes[0].main_id
+                        idoption = str(uuid.uuid4())
+                        salad = bool(self.request.POST.get('form-{0}-salad'.format(i),False))
+                        dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
+                        option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert)
             else:
                 print(form_data.errors)
             data['options'] = MenuFormSet()
@@ -58,7 +66,7 @@ class MenuView(FormView):
             data['options'] = MenuFormSet()
             data['modal'] = ModalFormSet()
         return data
-    
+
     def form_valid(self, form):
         return super(MenuView, self).form_valid(form)
 

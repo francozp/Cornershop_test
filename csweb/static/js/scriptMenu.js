@@ -1,7 +1,7 @@
 $(function () {
   $("#datetimepicker1").datetimepicker({
-    defaultDate: new Date(),
     format: 'DD/MM/YYYY',
+    defaultDate: new Date(),
     minDate: new Date()
   });
 });
@@ -144,5 +144,8 @@ else{
   <strong>Ups!</strong>&nbspLa opción `+ idt +` debe ser completada antes de añadir una nueva
 </div>`).insertAfter("nav");
 }
-});
+var cantRows = parseInt($('#id_form-TOTAL_FORMS').val());
+$('#id_form-TOTAL_FORMS').val(cantRows + 1);
+}
+);
 });
