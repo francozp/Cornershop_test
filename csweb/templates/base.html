@@ -13,7 +13,9 @@
   <title>{% block web_title %}{% endblock %}</title><!--web title-->
 
   <!-- Custom styles for this template-->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 
   {% block script %}
   {% endblock %}
@@ -44,19 +46,16 @@
       <!--Nav Items-->
       <li class="nav-item">
         <a class="nav-link" href="{% url "Home" %}">
-          <i class="fas fa-fw fa-chart-area"></i>
           <span>Home</span></a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link" href="{% url "Menu" %}">
-          <i class="fas fa-fw fa-chart-area"></i>
           <span>Menú</span></a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link" href="">
-          <i class="fas fa-fw fa-table"></i>
           <span>Ver pedidos</span></a>
       </li>
 
@@ -118,15 +117,6 @@
         {% block content %}
         {% endblock %}
         </div>
-      <!-- Footer -->
-      <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Developed with love by Franco Zalavari ♥</span>
-          </div>
-        </div>
-      </footer>
-      <!-- End of Footer -->
 
     </div>
     <!-- End of Content Wrapper -->

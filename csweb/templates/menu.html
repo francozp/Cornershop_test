@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block script %}
+<!-- The following scripts are necessary for the use of the datepicker and the selectizer  -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js" integrity="sha256-VBLiveTKyUZMEzJd6z2mhfxIqz3ZATCuVMawPZGzIfA=" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
@@ -13,20 +14,25 @@
 
 {% block content %}
 
-    
+    <!-- Main Form, use to the creation of the menu -->
     <form action="{% url 'Menu' %}" method="post">
       {% csrf_token %}
       {{ options.management_form }}
+
+      <!-- Datepicker -->
       <label for ="date"><b> Fecha &nbsp</b> </label>
       <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-          <input type="text" id = "date" name = "date" class="datetimepicker-input" data-target="#datetimepicker1"/>
+          <input type="text" id = "date" name = "date" class="datetimepicker-input" data-target="#datetimepicker1" required/>
           <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
           </div>
         </div>
       <br>
+
+      <!-- Table -->
       <table class="table table-striped">
         <thead>
+        <!-- Table-head -->    
         <tr>
             <th style = "text-align: center">Opción</th>
             <th style = "text-align: center">{{ form.maindish.label }}</th>
@@ -35,36 +41,67 @@
         </tr>
         </thead>
         <tbody id="tablaOpciones">
+            <!-- Table-body -->
             {% for form in options %}
-            <tr id=0>
-            <td style = "text-align: center">1</td>
-            <td>
-                {{ form.maindish | add_class:'form-control' }}
-            </td>
-    
-            <td style="text-align: center">
-                {{ form.salad }}
-            </td>
-            <td style="text-align: center">
-                {{ form.dessert }}
-            </td>
-          </tr>
-          {% endfor %}
+                <tr id=0>
+                    <td style = "text-align: center">1</td>
+                    <td> {{ form.maindish | add_class:'form-control' }} </td>
+                    <td style="text-align: center">{{ form.salad }}</td>
+                    <td style="text-align: center">{{ form.dessert }}</td>
+                </tr>
+            {% endfor %}
         </tbody>
-        </table>
+      </table>
+
+        <!-- Buttons -->
         <div class="row">
             <div class="col-4">
                 <a href="#" class="btn btn-dark btn-lg add_option"><i class="fa fa-plus-circle"></i> Agregar otra opción</a>
             </div>
-            <div class="col-4"></div>
+            <div class="col-4">
+                <button type="button" class="btn btn-dark btn-lg" data-toggle="modal" data-target="#myModal">Agrega nuevo plato</button>
+            </div>
             <div class="col-4">
                 <input style="float: right;" type="submit" value="Crear Menú" class="btn btn-danger btn-lg">
             </div>
           </div>
     </form>
 
+    <!-- Modal -->
+          <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+            
+              <!-- Modal content-->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Crear nuevo plato principal</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Dish form, used to dish creation -->
+                    <form action="{% url 'Menu' %}" method="post">
+                        {% csrf_token %}
+                        {{ modal.management_form }}
+                        <div class="modal-body">
+                          <div class="form-group">
+                            <label for="">Descripción del plato</label>
+                            <input type="text" class="form-control" name="form-0-newdish" id="form-0-newdish" placeholder="Ingrese nombre del nuevo plato" required>
+                            <small class="form-text text-muted">Asegurese de no ingresar un plato ya existente</small>
+                          </div>
+                        <div class="modal-footer border-top-0 d-flex justify-content-center">
+                          <button type="submit" class="btn btn-danger">Crear</button>
+                        </div>
+                      </form>
+                </div>
+              </div>
+              
+            </div>
+    
 {% endblock %}
 
 {% block jsincludes %}
-    <script src="{% static "js/scriptMenu.js" %}"></script>
+<!-- JS added for selectize and other functionality -->
+<script src="{% static "js/selectize.min.js" %}"></script>
+<script src="{% static "js/scriptMenu.js" %}"></script>
+<link rel="stylesheet" href="{% static "css/selectize.bootstrap3.css" %}">
 {% endblock %}
