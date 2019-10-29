@@ -2,6 +2,7 @@ $(function () {
   $("#datetimepicker1").datetimepicker({
     defaultDate: new Date(),
     format: 'DD/MM/YYYY',
+    minDate: new Date()
   });
 });
 

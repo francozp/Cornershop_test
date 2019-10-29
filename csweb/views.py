@@ -13,7 +13,6 @@ import datetime
 class HomeView(TemplateView):
     template_name = "index.html"
 
-# TODO: Dates should start in the actual day
 # TODO: Verify if the menu is already created
 
 class MenuView(FormView):
