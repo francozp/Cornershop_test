@@ -23,14 +23,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#bdbudykt7xv=3j1z+8nex2-8w6v9=6_%g-su!@dc^&u!yy#87'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost','127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django_slack',
     'widget_tweaks',
     'csweb.apps.MealDeliveryConfig',
     'django.contrib.admin',
@@ -128,3 +129,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join("csweb", 'static'),)
+SLACK_TOKEN = 'xoxb-804855088449-813495079172-vonUoHdsppPECWiQxQ9khdef'
+SLACK_CHANNEL = '#test'
