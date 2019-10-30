@@ -1,6 +1,24 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block web_title %}Meal Delivery - Detalle{% endblock %}
-{% block title %}Detalle del Menú{% endblock %}
+{% block title %}Detalle{% endblock %}
 {% block content %}
+<div class="card">
+    <div class="card-header" style="background-color: rgb(196, 5, 5);">
+      <h3 class="m-0 font-weight-bold text-white" style = "text-align: center">Menú del Día</h3>
+    </div>
+    <div class="card-body">
+        {% for option,dish in menu %}
+        <h4 class="card-title" style = "text-align: center">Opción {{ option.menu_option }}<hr width="50%" size="10" style = "border: 1px solid black;border-radius: 5px;"></h4>
+        <p class="card-text" style = "text-align: center"><i class="fas fa-utensils" style = " position: relative;"></i>&nbsp;&nbsp;{{ dish.description }}</p>
+        {% if option.salad %}
+        <p class="card-text" style = "text-align: center"><i class="fas fa-leaf" style = " position: relative;"></i>&nbsp;&nbsp;Ensalada</p>
+        {% endif %}
+        {% if option.dessert %}
+        <p class="card-text" style = "text-align: center"><i class="fas fa-ice-cream" style = " position: relative;"></i>&nbsp;&nbsp;Postre</p>
+        {% endif %}
+    {% endfor %}
+    </div>
+  </div>
+
 {% endblock %}  

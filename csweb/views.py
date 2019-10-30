@@ -69,6 +69,8 @@ class MenuView(FormView):
                             msg += " y Ensalada\n"
                         elif(dessert):
                             msg += " y Postre\n"
+                        else:
+                            msg += "\n"
                         option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert,menu_option=i+1)
                     msg += "\nTengan lindo día!"
                     slack_msg.delay(msg)
@@ -90,7 +92,14 @@ class MenuDetailView(DetailView):
     template_name = "ver_menu.html"
     def get_context_data(self, **kwargs):
         context = super(MenuDetailView, self).get_context_data(**kwargs)
-        context['prodenpedidos'] = Options.objects.filter(id_menu=context['object'].id)
+        options = Options.objects.filter(menu_id=context['object'].menu_id)
+        sorted_options = sorted(options, key=lambda x: x.menu_option)
+        dishes = []
+        for option in sorted_options:
+            dish = MainDish.objects.filter(main_id = option.main_id)
+            dishes.append(dish[0])
+        menuDetail = zip(sorted_options,dishes)
+        context['menu'] = menuDetail
         return context
 
     def render_to_response(self, context):
