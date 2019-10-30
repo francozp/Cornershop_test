@@ -12,7 +12,10 @@ Local MySql DB is used in this project. The sql file to create the database is i
 # Bootstrap Theme
 The Bootstrap theme can be acquired at https://startbootstrap.com/themes/sb-admin-2/
 
-# Celery Broker
+# Celery
 Erlang and RabbitMQ (broker) must be installed to make it work. 
 Windows: Instalation guide can be found in https://www.rabbitmq.com/install-windows.html
 Ubuntu: Install using: apt-get install -y erlang and apt-get install rabbitmq-server
+
+To execute celery : celery worker -A csweb.celery --loglevel=info --pool=solo -l info
+Start the RabbitMQ service

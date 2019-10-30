@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from django.views.generic import TemplateView, FormView, ListView
+from django.views.generic import TemplateView, FormView, ListView, DetailView
 from django_slack import slack_message
+from .tasks import slack_msg
 from .models import *
 from .forms import *
 import uuid
@@ -55,16 +56,22 @@ class MenuView(FormView):
                     for i in range(maxforms):
                         # Iterate over the different options and create them
                         maindish = str(self.request.POST['form-{0}-maindish'.format(i)])
-                        msg += "Opción " + str(i+1) + ": " + maindish + "\n" 
-                        # Add the options to the slack msg
                         actual_dishes = MainDish.objects.filter(description = maindish)
                         idmain = actual_dishes[0].main_id
                         idoption = str(uuid.uuid4())
                         salad = bool(self.request.POST.get('form-{0}-salad'.format(i),False))
                         dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
-                        option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert)
+                        msg += "Opción " + str(i+1) + ": " + maindish  
+                        # Add the options to the slack msg
+                        if(salad and dessert):
+                            msg += ", Ensalada y Postre\n"
+                        elif(salad):
+                            msg += " y Ensalada\n"
+                        elif(dessert):
+                            msg += " y Postre\n"
+                        option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert,menu_option=i+1)
                     msg += "\nTengan lindo día!"
-                    slack_message('meal_msg.slack',attachments = [{'text': msg,},])
+                    slack_msg.delay(msg)
                     # Send the slack msg
             else:
                 print(form_data.errors)
@@ -77,6 +84,18 @@ class MenuView(FormView):
 
     def form_valid(self, form):
         return super(MenuView, self).form_valid(form)
+
+class MenuDetailView(DetailView):
+    model = Menu
+    template_name = "ver_menu.html"
+    def get_context_data(self, **kwargs):
+        context = super(MenuDetailView, self).get_context_data(**kwargs)
+        context['prodenpedidos'] = Options.objects.filter(id_menu=context['object'].id)
+        return context
+
+    def render_to_response(self, context):
+        return super(MenuDetailView, self).render_to_response(context)
+
 
 class AjaxMenuView(ListView):
     # This view obtains the different dishes to use them in the select input from the menu creation form

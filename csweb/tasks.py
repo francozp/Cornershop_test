@@ -1,9 +1,6 @@
 from csweb.celery import app
- 
+from django_slack import slack_message
+
 @app.task
-def prueba_suma(x, y):
-    return x + y
-     
-@app.task
-def prueba_resta(x, y):
-    return x - y
+def slack_msg(msg):
+    slack_message('meal_msg.slack',attachments = [{'text': msg,},])

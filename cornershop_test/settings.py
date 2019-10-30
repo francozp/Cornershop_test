@@ -131,3 +131,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join("csweb", 'static'),)
 SLACK_TOKEN = 'xoxb-804855088449-813495079172-vonUoHdsppPECWiQxQ9khdef'
 SLACK_CHANNEL = '#test'
+SLACK_USERNAME = "Nora"
+SLACK_ICON_URL = 'https://www.pinclipart.com/picdir/middle/1-15446_woman-women-working-clipart-kid-user-icon-png.png'
+SLACK_BACKEND = 'django_slack.backends.CeleryBackend'
