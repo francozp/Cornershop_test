@@ -7,6 +7,8 @@ from .models import *
 from .forms import *
 import uuid
 import datetime
+import socket 
+
 # ------------ MAIN TO-DO List ----------------
 # TODO: Create the main screen
 # TODO: Create the user control
@@ -39,8 +41,8 @@ class MenuView(FormView):
             if form_data.is_valid():
                 msg = "Hola!\nDejo el menú de hoy :)\n\n"
                 # Msg to send to slack
-                date = str(self.request.POST['date']).split("/")
-                date = date[2] + "-" + date[1] +"-" + date[0]
+                date_list = str(self.request.POST['date']).split("/")
+                date = date_list[2] + "-" + date_list[1] +"-" + date_list[0]
                 # The date is parsed to be compatible with the MySql schema
                 date_verify = Menu.objects.filter(fecha = date)
                 # Verify if there is a menu created for the date 
@@ -72,8 +74,16 @@ class MenuView(FormView):
                         else:
                             msg += "\n"
                         option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert,menu_option=i+1)
-                    msg += "\nTengan lindo día!"
-                    slack_msg.delay(msg)
+                    host_name = socket.gethostname() 
+                    host_ip = socket.gethostbyname(host_name) 
+                    msg += "\nTengan lindo día!\n\n El menú puede verse en http://" + str(host_ip) + ":8000/menu/" + str(idmenu)
+                    #deliver = datetime.datetime(date_list[2], date_list[1], date_list[0], 9, 00)
+                    today = datetime.datetime.now()
+                    deliver = datetime.datetime(int(date_list[2]), int(date_list[1]), int(date_list[0]), 9)
+                    cdw = (deliver-today).total_seconds()
+                    if(cdw< 0):
+                        cdw = 0
+                    slack_msg.apply_async(kwargs={'msg': msg},countdown=int(cdw))
                     # Send the slack msg
             else:
                 print(form_data.errors)

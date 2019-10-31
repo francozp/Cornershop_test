@@ -11,6 +11,21 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import socket 
+  
+# Function to display hostname and 
+# IP address 
+def get_Host_name_IP(): 
+    try: 
+        host_name = socket.gethostname() 
+        host_ip = socket.gethostbyname(host_name) 
+        return(host_ip)
+    except: 
+        print("Unable to get Hostname and IP") 
+  
+# Driver code 
+#Function call 
+  
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,7 +39,7 @@ SECRET_KEY = '#bdbudykt7xv=3j1z+8nex2-8w6v9=6_%g-su!@dc^&u!yy#87'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = ['localhost','127.0.0.1']
+ALLOWED_HOSTS = ['localhost','127.0.0.1',get_Host_name_IP()]
 
 
 # Application definition
