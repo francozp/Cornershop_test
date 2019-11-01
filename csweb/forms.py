@@ -1,5 +1,6 @@
 from django import forms
 from .models import *
+from django.contrib.auth.models import User
 
 class MenuForm(forms.Form):
     # Form for menu creation
@@ -25,6 +26,9 @@ class UserRegistrationForm(forms.Form):
     username = forms.CharField(max_length=30)
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
+    class Meta:
+        model = User
+        fields = ('username','password','name','rut','privilege')
 
 MenuFormSet = forms.formset_factory(MenuForm, can_delete=True)
 ModalFormSet = forms.formset_factory(ModalForm, can_delete=True)

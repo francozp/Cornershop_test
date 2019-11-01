@@ -38,9 +38,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#bdbudykt7xv=3j1z+8nex2-8w6v9=6_%g-su!@dc^&u!yy#87'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['localhost','127.0.0.1',get_Host_name_IP()]
-
+LOGIN_URL = "/accounts/login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = LOGIN_URL
 
 # Application definition
 

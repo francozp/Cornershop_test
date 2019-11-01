@@ -1,9 +1,11 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.http import JsonResponse, HttpResponse
 from django.views.generic import TemplateView, FormView, ListView, DetailView,CreateView
 from django_slack import slack_message
 from .tasks import slack_msg
-import hashlib
+from django.contrib.auth.forms import UserCreationForm
 from .models import *
 from .forms import *
 import uuid
@@ -17,11 +19,13 @@ import socket
 # TODO: User select option from menu (until 11am, with customizations)
 # TODO: Nora can see the options from users
 
+@method_decorator(login_required, name="dispatch")
 class HomeView(TemplateView):
     template_name = "index.html"
 
 # TODO: Verify if the menu is already created
 
+@method_decorator(login_required, name="dispatch")
 class MenuView(FormView):
     template_name = "menu.html"
     form_class = MenuForm
@@ -122,27 +126,25 @@ class MenuDetailView(DetailView):
     def render_to_response(self, context):
         return super(MenuDetailView, self).render_to_response(context)
 
-class RegisterView(FormView):
-    form_class = UserRegistrationForm
+@method_decorator(login_required, name="dispatch")
+class RegisterView(CreateView):
+    form_class = UserCreationForm
     # Main form class for the view
     template_name = 'register.html'
     def get_context_data(self, **kwargs):
         context = super(RegisterView, self).get_context_data(**kwargs)
         if self.request.method == 'POST':
             form = UserRegistrationForm(self.request.POST)
-            print(form)
             if form.is_valid():
                 # Validate if the form is valid
-                userid = str(uuid.uuid4())
-                # Create the uuid for the user_id
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password')
-                hashed_pwd = str(hashlib.sha512(str(password).encode('utf-8')).hexdigest())
-                # Hash the passwrod using hashlib
+                user = User.objects.create_user(username, '', password)
                 privilege = bool(self.request.POST.get('privilege',False))
                 rut = form.cleaned_data.get('rut')
                 name = form.cleaned_data.get('name')
-                profile = Profile.objects.create(username = username, user_id= userid,rut=rut,name=name,privileges=True, password = hashed_pwd)
+                profile = Profile.objects.create(user_id= user.id,rut=rut,name=name,privileges=privilege)
+                user.save()
                 profile.save()
                 # Create and save the Profile object created
             else:
@@ -155,6 +157,7 @@ class RegisterView(FormView):
     def form_valid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
 
+@method_decorator(login_required, name="dispatch")
 class AjaxMenuView(ListView):
     # This view obtains the different dishes to use them in the select input from the menu creation form
     http_method_names = ['get', ]
