@@ -175,10 +175,9 @@ class Options(models.Model):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, primary_key=True)
     privileges = models.IntegerField()
     name = models.CharField(max_length=100)
-    rut = models.IntegerField()
 
     class Meta:
         managed = False

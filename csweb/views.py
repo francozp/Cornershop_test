@@ -105,6 +105,7 @@ class MenuView(FormView):
     def form_valid(self, form):
         return super(MenuView, self).form_valid(form)
 
+@method_decorator(login_required, name="dispatch")
 class MenuDetailView(DetailView):
     model = Menu
     template_name = "ver_menu.html"
@@ -126,7 +127,6 @@ class MenuDetailView(DetailView):
     def render_to_response(self, context):
         return super(MenuDetailView, self).render_to_response(context)
 
-@method_decorator(login_required, name="dispatch")
 class RegisterView(CreateView):
     form_class = UserCreationForm
     # Main form class for the view
@@ -141,9 +141,8 @@ class RegisterView(CreateView):
                 password = form.cleaned_data.get('password')
                 user = User.objects.create_user(username, '', password)
                 privilege = bool(self.request.POST.get('privilege',False))
-                rut = form.cleaned_data.get('rut')
                 name = form.cleaned_data.get('name')
-                profile = Profile.objects.create(user_id= user.id,rut=rut,name=name,privileges=privilege)
+                profile = Profile.objects.create(user_id= user.id,name=name,privileges=privilege)
                 user.save()
                 profile.save()
                 # Create and save the Profile object created
