@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from django.views.generic import TemplateView, FormView, ListView, DetailView
+from django.views.generic import TemplateView, FormView, ListView, DetailView,CreateView
 from django_slack import slack_message
 from .tasks import slack_msg
+import hashlib
 from .models import *
 from .forms import *
 import uuid
@@ -12,7 +13,10 @@ import socket
 # ------------ MAIN TO-DO List ----------------
 # TODO: Create the main screen
 # TODO: Create the user control
-# TODO: Add option number field to option model
+# TODO: Create the login view
+# TODO: User select option from menu (until 11am, with customizations)
+# TODO: Nora can see the options from users
+
 class HomeView(TemplateView):
     template_name = "index.html"
 
@@ -84,7 +88,7 @@ class MenuView(FormView):
                     if(cdw< 0):
                         cdw = 0
                     slack_msg.apply_async(kwargs={'msg': msg},countdown=int(cdw))
-                    # Send the slack msg
+                    # Send the slack msg async using celery (view tasks.py and celery.py)
             else:
                 print(form_data.errors)
             data['options'] = MenuFormSet()
@@ -103,18 +107,53 @@ class MenuDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(MenuDetailView, self).get_context_data(**kwargs)
         options = Options.objects.filter(menu_id=context['object'].menu_id)
+        # Search for the menu with menu_id obtained from get
         sorted_options = sorted(options, key=lambda x: x.menu_option)
         dishes = []
+        # Obtain all the dishes on the menu
         for option in sorted_options:
             dish = MainDish.objects.filter(main_id = option.main_id)
             dishes.append(dish[0])
         menuDetail = zip(sorted_options,dishes)
+        # Double list (zip) to iterate over them at the same time (options and dishes)
         context['menu'] = menuDetail
         return context
 
     def render_to_response(self, context):
         return super(MenuDetailView, self).render_to_response(context)
 
+class RegisterView(FormView):
+    form_class = UserRegistrationForm
+    # Main form class for the view
+    template_name = 'register.html'
+    def get_context_data(self, **kwargs):
+        context = super(RegisterView, self).get_context_data(**kwargs)
+        if self.request.method == 'POST':
+            form = UserRegistrationForm(self.request.POST)
+            print(form)
+            if form.is_valid():
+                # Validate if the form is valid
+                userid = str(uuid.uuid4())
+                # Create the uuid for the user_id
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                hashed_pwd = str(hashlib.sha512(str(password).encode('utf-8')).hexdigest())
+                # Hash the passwrod using hashlib
+                privilege = bool(self.request.POST.get('privilege',False))
+                rut = form.cleaned_data.get('rut')
+                name = form.cleaned_data.get('name')
+                profile = Profile.objects.create(username = username, user_id= userid,rut=rut,name=name,privileges=True, password = hashed_pwd)
+                profile.save()
+                # Create and save the Profile object created
+            else:
+                print(form.errors)
+        else:
+            form = UserRegistrationForm()
+        context['form'] = form
+        return context
+    
+    def form_valid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
 
 class AjaxMenuView(ListView):
     # This view obtains the different dishes to use them in the select input from the menu creation form
