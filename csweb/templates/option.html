@@ -5,12 +5,17 @@
 
 {% block title %}Opciones del día{% endblock %}
 {% block content %}
-{% if menu and not chosen %}
+{% if stop %}
+<div class="alert alert-info">
+        <strong>Ups!</strong> Has llegado tarde, ya han pasado las 11 AM <i class="far fa-frown"></i>
+</div>
+{% elif menu and not chosen %}
 <form method="POST">
         {% csrf_token %}
 <div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
         <div class="card-header bg-secondary">
             <h5 class="card-title text-white">Selecciona una de las deliciosas opciones</h5>
+            <p class="text-gray-400" style = "padding: 0rem;margin-block-end:0"><small>El período termina a las 11 AM</small></p>
         </div>
         <div class="card-body">
                 <h6 class="m-0 font-weight-bold text-dark" style = "padding-bottom: 1rem;">Opciones</h6>
@@ -34,7 +39,7 @@
     </form>
 
 {% elif menu and chosen %}
-<div class="alert alert-danger">
+<div class="alert alert-info">
         <strong>Ups!</strong> Ya has seleccionado la opción de hoy <i class="far fa-grin-beam-sweat"></i>
 </div>
 {% else %}

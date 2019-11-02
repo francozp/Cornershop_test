@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import JsonResponse, HttpResponse
+from django.urls import reverse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, FormView, ListView, DetailView,CreateView
 from django_slack import slack_message
 from .tasks import slack_msg
@@ -148,6 +149,14 @@ class OptionView(FormView):
             context["chosen"] = True
         else:
             context["chosen"] = False
+        today = datetime.datetime.now()
+        year, month, day = str(today).split()[0].split("-")
+        limit = datetime.datetime(int(year),int(month),int(day),11)
+        rest = (limit-today).total_seconds()
+        if rest < 0:
+            context["stop"] = True
+        else:
+            context["stop"] = False
         try:
             date = datetime.date.today()
             menu = Menu.objects.filter(fecha = date)
@@ -182,7 +191,8 @@ class OptionView(FormView):
                 optionid = self.request.POST['option']
                 detail = self.request.POST['detail']
                 userOpt = UserOption.objects.create(user_id= userid, option_id = optionid, detail=detail)
-                redirect('Home')
+                # return none tu redirection
+                return None 
             else:
                 print(form.errors)
         else:
@@ -199,6 +209,9 @@ class OptionView(FormView):
         return context
 
     def render_to_response(self, context):
+        if context is None:
+            # if option is selected redirect to home
+            return HttpResponseRedirect(reverse("Home"))
         return super(OptionView, self).render_to_response(context) 
 
     def form_valid(self, form):
