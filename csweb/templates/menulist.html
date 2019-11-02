@@ -1,0 +1,39 @@
+{%  extends "base.html" %}
+{% load static %}
+{% block script %}
+<script type="text/javascript" src="{% static "js/jquery.dynatable.js" %}"></script>
+<link rel="stylesheet" href="{% static "css/jquery.dynatable.css" %}">
+<script> $(function() {$('#tabla-stock').dynatable();} );</script>
+{% endblock %}
+{% block title %}Menús existentes{% endblock %}
+{% block web_title %}Meal Delivery - Menús{% endblock %}
+{% block content %}
+<table id="tabla-stock">
+        <thead>
+            <th>Fecha</th>
+            <th>Opciones</th>
+            <th>Editar</th>
+        </thead>
+    
+        <tbody>
+        {% if menus %}
+        {% for menu, options in menus %}
+            <tr>
+                <td>{{ menu.fecha }}</td>
+                <td>
+                    <ul class="list-group">
+                            {% for option in options %}<li class="list-group-item" style="background-color: transparent;border: transparent ;">{{ option }}</li>{% endfor %}
+                    </ul>
+                </td>
+                <td><a href="editMenu/{{ menu.menu_id }}" class="btn btn-link btn-rounded btn-fw"><i class="far fa-edit"></i>Editar menú</a></td>
+            </tr>
+    
+        {% endfor %}
+    
+        {% else %}
+          <p>No hay nada.</p>
+        {% endif %}
+        </tbody>
+    </table>
+
+{% endblock %}

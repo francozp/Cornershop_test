@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% block web_title %}Meal Delivery - Eliminar{% endblock %}
+
+{% block title %}Eliminar opción{% endblock %}
+{% block content %}
+<form action= "" method="POST">
+    {% csrf_token %}
+    <p>¿Estás seguro que quieres eliminar la opción? {{ option.option_id }}</p>
+    <input type="submit" value="Delete"/>
+</form>
+{% endblock %}

@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.views.generic import TemplateView, FormView, ListView, DetailView,CreateView
+from django.views.generic import TemplateView, FormView, ListView, DetailView,CreateView,DeleteView
 from django_slack import slack_message
 from .tasks import slack_msg
 from django.contrib.auth.forms import UserCreationForm
@@ -15,10 +15,23 @@ import socket
 
 # ------------ MAIN TO-DO List ----------------
 # TODO: Create the main screen
-# TODO: Nora can see the options from users
 # TODO: Nora can edit the menu (before 9am of the day)
 
 def parse_food(option, number, maindish, show_option = True):
+    """ Parse the option, maindish, salad and dessert
+
+        Parameters
+        ----------
+        option : object, optional
+            Option object
+        number : int
+            Number of the option in the menu
+        maindish : str
+            Name of the main dish
+        show_option : bool, optional
+            True to show the option number
+    """
+
     if show_option:
         msg = "Opción " + str(number) + ": " + str(maindish)
     else:
@@ -35,9 +48,12 @@ def parse_food(option, number, maindish, show_option = True):
         msg += "\n"
     return msg
 
+# NOTE: Needs discussion or investigation -@Franco at 02-11-2019 20:47:12
+# The actual view will stay as it is
 @method_decorator(login_required, name="dispatch")
 class HomeView(TemplateView):
     template_name = "index.html"
+
 
 @method_decorator(login_required, name="dispatch")
 class MenuView(FormView):
@@ -117,6 +133,38 @@ class MenuView(FormView):
     def form_valid(self, form):
         return super(MenuView, self).form_valid(form)
 
+@method_decorator(login_required, name="dispatch")
+class MenuEditView(DetailView):
+    model = Menu
+    template_name = "menuEdit.html"
+    def get_context_data(self, **kwargs):
+        context = super(MenuEditView, self).get_context_data(**kwargs)
+        options = Options.objects.filter(menu_id = context["object"].menu_id)
+        # Search the options for the menu with menu_id
+        opts = []
+        options = sorted(options, key=lambda x: x.menu_option)
+        # Sort the options based on the menu_option number
+        for option in options:
+            dish = MainDish.objects.filter(main_id = option.main_id)[0].description
+            # Look for the maindish of the option
+            opt = parse_food(option, option.menu_option, dish)
+            # Parse the food
+            opts.append(opt)
+        context["menu"] = zip(opts,options)
+        # Create a zip with opts and options list to iterate over both in the template
+        if self.request.POST:
+            form_data = MenuFormSet(self.request.POST)
+            context["options"] = MenuFormSet()
+        else:
+            context["options"] = MenuFormSet()
+        
+        return context
+
+    def render_to_response(self, context):
+        if (self.request.user.profile.privileges == False):
+            # Validate if the user has the privileges
+            return redirect('Home')
+        return super(MenuEditView, self).render_to_response(context)
 
 class MenuDetailView(DetailView):
     model = Menu
@@ -140,18 +188,20 @@ class MenuDetailView(DetailView):
         return super(MenuDetailView, self).render_to_response(context)
 # TODOC
 @method_decorator(login_required, name="dispatch")
-class SeeOptionsView(ListView):
+class SeeOptionsView(TemplateView):
     model = UserOption
     template_name = "seeOptions.html"
     def get_context_data(self, **kwargs):
         context = super(SeeOptionsView, self).get_context_data(**kwargs)
         user_options = UserOption.objects.all()
+        # Collect all the user_option objects
         options = []
         menus = []
         profiles = []
         dishes = []
         details = []
         for u_option in user_options:
+            # Search for all the information to show (option, profile, menu, dish, detail)
             option = Options.objects.filter(option_id = u_option.option_id)[0]
             menu = Menu.objects.filter(menu_id = option.menu_id)[0]
             profile = Profile.objects.filter(user_id = u_option.user_id)[0]
@@ -163,6 +213,7 @@ class SeeOptionsView(ListView):
             profiles.append(profile)
             dishes.append(dish)
         useroption_data = zip(menus,options,profiles,dishes,details)
+        # Create a zip with the 5 lists (menus, options, profiles, dishes, details)
         context["useroption"] = useroption_data
         return context
 
@@ -171,6 +222,58 @@ class SeeOptionsView(ListView):
             # Validate if the user has the privileges
             return redirect('Home')
         return super(SeeOptionsView, self).render_to_response(context)
+
+@method_decorator(login_required, name="dispatch")
+class OptionDeleteView(DeleteView):
+    # View to delete an option of the menu
+    model = Options
+    template_name = "delete.html"
+    # template to delete confirmation
+    context_object_name = "option"
+    success_url = reverse_lazy("MenuList")
+    # where to redirect after delete the item
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        options = Options.objects.filter(menu_id = self.object.menu_id)
+        cont = 1
+        for option in options:
+            # Change the menu_option number for the other items on the menu
+            if(option.option_id != self.object.option_id):
+                option.menu_option = cont
+                option.save()
+                cont+=1
+        return super(OptionDeleteView, self).delete(request, *args, **kwargs)
+
+@method_decorator(login_required, name="dispatch")
+class MenuListView(TemplateView):
+    model = Menu
+    template_name = "menulist.html"
+    def get_context_data(self, **kwargs):
+        context = super(MenuListView, self).get_context_data(**kwargs)
+        menus = Menu.objects.all()
+        # Obtain all the menu objects
+        menu_options = []
+        for menu in menus:
+            options = Options.objects.filter(menu_id = menu.menu_id)
+            # Look for all the options for the menu with pk = menu_id
+            opts = []
+            options = sorted(options, key=lambda x: x.menu_option)
+            # Sort the options by menu_option number
+            for option in options:
+                dish = MainDish.objects.filter(main_id = option.main_id)[0].description
+                opt = parse_food(option, option.menu_option, dish)
+                opts.append(opt)
+                # create the parsed text
+            menu_options.append(opts)
+        context["menus"] = zip(menus,menu_options)
+        return context
+
+    def render_to_response(self, context):
+        if (self.request.user.profile.privileges == False):
+            # Validate if the user has the privileges
+            return redirect('Home')
+        return super(MenuListView, self).render_to_response(context)
+
 
 @method_decorator(login_required, name="dispatch")
 class OptionView(FormView):
@@ -267,11 +370,15 @@ class RegisterView(CreateView):
                 password = form.cleaned_data.get('password')
                 privilege = bool(self.request.POST.get('privilege',False))
                 name = form.cleaned_data.get('name')
+                # Collect the information
                 try:
                     user = User.objects.create_user(username, '', password)
+                    # Create the user
                     profile = Profile.objects.create(user_id= user.id,name=name,privileges=privilege)
+                    # Create the profile
                     user.save()
                     profile.save()
+                    # Save the created objects
                     context["error"] = False
                 except:
                     context["error"] = True
