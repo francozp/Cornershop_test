@@ -1,6 +1,7 @@
 from django import forms
 from .models import *
 from django.contrib.auth.models import User
+import datetime
 
 class MenuForm(forms.Form):
     # Form for menu creation
@@ -11,6 +12,10 @@ class MenuForm(forms.Form):
 class ModalForm(forms.Form):
     # Form for dish creation
     newdish = forms.CharField(label = "Plato Principal", widget=forms.TextInput())
+    
+class OptionForm(forms.Form):
+    option = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'form-check-input'}), choices=[])
+    detail = forms.CharField(widget=forms.Textarea,required=False)
 
 class UserRegistrationForm(forms.Form):
     name = forms.CharField(required=True,label='Nombre',max_length=32)

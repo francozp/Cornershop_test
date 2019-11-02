@@ -6,7 +6,8 @@ urlpatterns = [
     path("menu", views.MenuView.as_view(), name = "Menu"),
     path("menu/<pk>", views.MenuDetailView.as_view(), name="detailMenu"),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('register/', views.RegisterView.as_view(), name='Register')
+    path('register/', views.RegisterView.as_view(), name='Register'),
+    path('option', views.OptionView.as_view(), name = "Option")
 ]
 # API URLS
 urlpatterns += [

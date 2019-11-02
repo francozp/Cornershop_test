@@ -46,17 +46,20 @@
         <a class="nav-link" href="{% url "Home" %}">
           <span>Inicio</span></a>
       </li>
-
+      <li class="nav-item">
+          <a class="nav-link" href="{% url "Option" %}">
+            <span>Elegir almuerzo</span></a>
+        </li>
+      {% if user.profile.privileges %}
       <li class="nav-item">
         <a class="nav-link" href="{% url "Menu" %}">
-          <span>Menú</span></a>
+          <span>Crear Menú</span></a>
       </li>
-
       <li class="nav-item">
         <a class="nav-link" href="{% url "Register" %}"
           <span>Crear usuario</span></a>
       </li>
-
+      {% endif %}
 
     </ul>
     <!-- End of Sidebar -->
@@ -127,6 +130,7 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript" src="{% static "js/sb-admin-2.min.js" %}"></script>
   {% block jsincludes %}
   {% endblock %}
 </body>

@@ -102,6 +102,7 @@ class MenuView(FormView):
         
     def render_to_response(self, context):
         if (self.request.user.profile.privileges == False):
+            # Validate if the user has the privileges
             return redirect('Home')
         return super(MenuView, self).render_to_response(context)
 
@@ -111,7 +112,7 @@ class MenuView(FormView):
 
 class MenuDetailView(DetailView):
     model = Menu
-    template_name = "ver_menu.html"
+    template_name = "menu_detail.html"
     def get_context_data(self, **kwargs):
         context = super(MenuDetailView, self).get_context_data(**kwargs)
         options = Options.objects.filter(menu_id=context['object'].menu_id)
@@ -129,6 +130,79 @@ class MenuDetailView(DetailView):
 
     def render_to_response(self, context):
         return super(MenuDetailView, self).render_to_response(context)
+
+@method_decorator(login_required, name="dispatch")
+class OptionView(FormView):
+    # view to select one option of the menu
+    model = Menu
+    form_class = OptionForm
+    template_name = "option.html"
+    def get_context_data(self, **kwargs):
+        context = super(OptionView, self).get_context_data(**kwargs)
+        userid = self.request.user.id
+        # get the user id
+        already_chosen = UserOption.objects.filter(user_id= userid)
+        # look for already selected option for the user
+        if(len(already_chosen) != 0):
+            # If the user has already choose an option, then the send alert
+            context["chosen"] = True
+        else:
+            context["chosen"] = False
+        try:
+            date = datetime.date.today()
+            menu = Menu.objects.filter(fecha = date)
+            # find the todays menu
+            options = Options.objects.filter(menu_id = menu[0].menu_id)
+            sorted_options = sorted(options, key=lambda x: x.menu_option)
+            # Obtain all the dishes on todays menu
+            CHOICES = []
+            # Generate the choices for the choice field 
+            for option in sorted_options:
+                dish = MainDish.objects.filter(main_id = option.main_id)
+                food = "Opción " + str(option.menu_option) + ": " +str(dish[0].description)
+                salad = option.salad
+                dessert = option.dessert
+                if(salad and dessert):
+                    food += ", Ensalada y Postre\n"
+                elif(salad):
+                    food += " y Ensalada\n"
+                elif(dessert):
+                    food += " y Postre\n"
+                CHOICES.append((option.option_id, food))
+        except:
+            CHOICES = ([])
+
+        if self.request.method == 'POST':
+            #If POST
+            form = OptionForm(self.request.POST)
+            form.fields["option"].choices= CHOICES
+            # Assign the choices to the ChoiceField
+            if(form.is_valid()):
+                # If the form is valid, create the UserOption object
+                optionid = self.request.POST['option']
+                detail = self.request.POST['detail']
+                userOpt = UserOption.objects.create(user_id= userid, option_id = optionid, detail=detail)
+                redirect('Home')
+            else:
+                print(form.errors)
+        else:
+            form = OptionForm()
+            form.fields["option"].choices= CHOICES
+            # The choices are updated as well
+        if(form.fields["option"].choices == []):
+            # Verify if the user has already chosen an option
+            context["menu"] = False
+        else:
+            context["menu"] = True
+        
+        context['form'] = form
+        return context
+
+    def render_to_response(self, context):
+        return super(OptionView, self).render_to_response(context) 
+
+    def form_valid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))  
 
 @method_decorator(login_required, name="dispatch")
 class RegisterView(CreateView):
@@ -164,6 +238,7 @@ class RegisterView(CreateView):
 
     def render_to_response(self, context):
         if (self.request.user.profile.privileges == False):
+            # Validate if the user has the privileges
             return redirect('Home')
         return super(RegisterView, self).render_to_response(context)
 
