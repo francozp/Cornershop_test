@@ -1,0 +1,42 @@
+{%  extends "base.html" %}
+{% load static %}
+{% block script %}
+<script type="text/javascript" src="{% static "js/jquery.dynatable.js" %}"></script>
+<link rel="stylesheet" href="{% static "css/jquery.dynatable.css" %}">
+<script> $(function() {$('#tabla-stock').dynatable();} );</script>
+{% endblock %}
+{% block title %}Opciones elegidas por los usuarios{% endblock %}
+{% block web_title %}Meal Delivery - Opciones{% endblock %}
+{% block content %}
+<table id="tabla-stock">
+        <thead>
+            <th>Nombre</th>
+            <th>Fecha</th>
+            <th>Plato principal</th>
+            <th>Ensalada</th>
+            <th>Postre</th>
+            <th>Detalle</th>
+        </thead>
+    
+        <tbody>
+        {% if useroption %}
+        {% for menu,option,profile,dish,detail in useroption %}
+            <tr>
+                <td>{{ profile.name }}</td>
+                <td>{{ menu.fecha }}</td>
+                <td>{{ dish.description }}</td>
+                <td>{% if option.salad %}Si{% else %}No{% endif %}</td>
+                <td>{% if option.dessert %}Si{% else %}No{% endif %}</td>
+                <td>{{ detail }}</td>
+            </tr>
+    
+          {% endfor %}
+    
+        {% else %}
+          <p>No hay nada.</p>
+        {% endif %}
+        </tbody>
+    </table>
+
+
+{% endblock %}

@@ -5,11 +5,13 @@
 
 {% block title %}Opciones del día{% endblock %}
 {% block content %}
-{% if stop %}
+{% if stop and not chosen %}
+<!-- Check the time, if its after 11am  -->
 <div class="alert alert-info">
         <strong>Ups!</strong> Has llegado tarde, ya han pasado las 11 AM <i class="far fa-frown"></i>
 </div>
 {% elif menu and not chosen %}
+<!-- Check if the menu exist and the user has not chosen an option  -->
 <form method="POST">
         {% csrf_token %}
 <div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
@@ -22,7 +24,7 @@
             {% for choice in form.option %}
           <div class="row no-gutters align-items-center" style="padding-left: 2rem;">
             <div class="col mr-2">
-                    {{ choice }}
+                    {{ choice }}<!-- Generate the choice fields  -->
             </div>
             <div class="col-auto">
               <i class="fas fa-utensils fa-2x text-gray-400"></i>
@@ -30,7 +32,7 @@
           </div>
           {% endfor %}
           <h6 class="m-0 font-weight-bold text-dark" style = "padding-bottom: 1rem; padding-top: 1rem;">¿ Algo que desees cambiar en tu plato ? Detalla tus especificaciones</h6>
-          {{ form.detail | add_class:"form-control" }}
+          {{ form.detail | add_class:"form-control" }} <!-- Customizations  -->
         </div>
         <div class="card-footer">
                 <button type="submit" class="btn btn-danger " name = "submit" id="submit">Seleccionar opción</button>
@@ -39,10 +41,12 @@
     </form>
 
 {% elif menu and chosen %}
+<!-- Check if user has already chosen an option  -->
 <div class="alert alert-info">
         <strong>Ups!</strong> Ya has seleccionado la opción de hoy <i class="far fa-grin-beam-sweat"></i>
 </div>
 {% else %}
+<!-- Alert if the menu doesnt exist  -->
 <div class="alert alert-danger">
         <strong>Ups!</strong> No hay menú creado para el día de hoy <i class="far fa-frown"></i>
 </div>

@@ -15,14 +15,29 @@ import socket
 
 # ------------ MAIN TO-DO List ----------------
 # TODO: Create the main screen
-# TODO: User select option from menu (until 11am, with customizations)
 # TODO: Nora can see the options from users
+# TODO: Nora can edit the menu (before 9am of the day)
+
+def parse_food(option, number, maindish, show_option = True):
+    if show_option:
+        msg = "Opción " + str(number) + ": " + str(maindish)
+    else:
+        msg = str(maindish)
+    salad = option.salad
+    dessert = option.dessert
+    if(salad and dessert):
+        msg += ", Ensalada y Postre\n"
+    elif(salad):
+        msg += " y Ensalada\n"
+    elif(dessert):
+        msg += " y Postre\n"
+    else:
+        msg += "\n"
+    return msg
 
 @method_decorator(login_required, name="dispatch")
 class HomeView(TemplateView):
     template_name = "index.html"
-
-# TODO: Verify if the menu is already created
 
 @method_decorator(login_required, name="dispatch")
 class MenuView(FormView):
@@ -70,17 +85,9 @@ class MenuView(FormView):
                         idoption = str(uuid.uuid4())
                         salad = bool(self.request.POST.get('form-{0}-salad'.format(i),False))
                         dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
-                        msg += "Opción " + str(i+1) + ": " + maindish  
-                        # Add the options to the slack msg
-                        if(salad and dessert):
-                            msg += ", Ensalada y Postre\n"
-                        elif(salad):
-                            msg += " y Ensalada\n"
-                        elif(dessert):
-                            msg += " y Postre\n"
-                        else:
-                            msg += "\n"
                         option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert,menu_option=i+1)
+                        msg += parse_food(option, i+1, maindish)
+
                     host_name = socket.gethostname() 
                     host_ip = socket.gethostbyname(host_name) 
                     msg += "\nTengan lindo día!\n\n El menú puede verse en http://" + str(host_ip) + ":8000/menu/" + str(idmenu)
@@ -131,6 +138,39 @@ class MenuDetailView(DetailView):
 
     def render_to_response(self, context):
         return super(MenuDetailView, self).render_to_response(context)
+# TODOC
+@method_decorator(login_required, name="dispatch")
+class SeeOptionsView(ListView):
+    model = UserOption
+    template_name = "seeOptions.html"
+    def get_context_data(self, **kwargs):
+        context = super(SeeOptionsView, self).get_context_data(**kwargs)
+        user_options = UserOption.objects.all()
+        options = []
+        menus = []
+        profiles = []
+        dishes = []
+        details = []
+        for u_option in user_options:
+            option = Options.objects.filter(option_id = u_option.option_id)[0]
+            menu = Menu.objects.filter(menu_id = option.menu_id)[0]
+            profile = Profile.objects.filter(user_id = u_option.user_id)[0]
+            dish = MainDish.objects.filter(main_id = option.main_id)[0]
+            detail = u_option.detail
+            details.append(detail)
+            options.append(option)
+            menus.append(menu)
+            profiles.append(profile)
+            dishes.append(dish)
+        useroption_data = zip(menus,options,profiles,dishes,details)
+        context["useroption"] = useroption_data
+        return context
+
+    def render_to_response(self, context):
+        if (self.request.user.profile.privileges == False):
+            # Validate if the user has the privileges
+            return redirect('Home')
+        return super(SeeOptionsView, self).render_to_response(context)
 
 @method_decorator(login_required, name="dispatch")
 class OptionView(FormView):
@@ -153,6 +193,7 @@ class OptionView(FormView):
         year, month, day = str(today).split()[0].split("-")
         limit = datetime.datetime(int(year),int(month),int(day),11)
         rest = (limit-today).total_seconds()
+        # Calculate remaining time
         if rest < 0:
             context["stop"] = True
         else:
@@ -168,15 +209,8 @@ class OptionView(FormView):
             # Generate the choices for the choice field 
             for option in sorted_options:
                 dish = MainDish.objects.filter(main_id = option.main_id)
-                food = "Opción " + str(option.menu_option) + ": " +str(dish[0].description)
-                salad = option.salad
-                dessert = option.dessert
-                if(salad and dessert):
-                    food += ", Ensalada y Postre\n"
-                elif(salad):
-                    food += " y Ensalada\n"
-                elif(dessert):
-                    food += " y Postre\n"
+                food = parse_food(option, option.menu_option, str(dish[0].description))
+                # Parse the food choice
                 CHOICES.append((option.option_id, food))
         except:
             CHOICES = ([])
