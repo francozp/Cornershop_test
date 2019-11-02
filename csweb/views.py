@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse, HttpResponse
@@ -14,8 +14,6 @@ import socket
 
 # ------------ MAIN TO-DO List ----------------
 # TODO: Create the main screen
-# TODO: Create the user control
-# TODO: Create the login view
 # TODO: User select option from menu (until 11am, with customizations)
 # TODO: Nora can see the options from users
 
@@ -85,14 +83,14 @@ class MenuView(FormView):
                     host_name = socket.gethostname() 
                     host_ip = socket.gethostbyname(host_name) 
                     msg += "\nTengan lindo día!\n\n El menú puede verse en http://" + str(host_ip) + ":8000/menu/" + str(idmenu)
-                    #deliver = datetime.datetime(date_list[2], date_list[1], date_list[0], 9, 00)
                     today = datetime.datetime.now()
                     deliver = datetime.datetime(int(date_list[2]), int(date_list[1]), int(date_list[0]), 9)
                     cdw = (deliver-today).total_seconds()
+                    print("Son " + str(cdw/3600) + " horas")
                     if(cdw< 0):
                         cdw = 0
                     slack_msg.apply_async(kwargs={'msg': msg},countdown=int(cdw))
-                    # Send the slack msg async using celery (view tasks.py and celery.py)
+                    # Send the slack msg async using celery (view tasks.py and celery.py). The msg will be send at the 9:00 am of the day asigned to the menu
             else:
                 print(form_data.errors)
             data['options'] = MenuFormSet()
@@ -101,11 +99,16 @@ class MenuView(FormView):
             data['options'] = MenuFormSet()
             data['modal'] = ModalFormSet()
         return data
+        
+    def render_to_response(self, context):
+        if (self.request.user.profile.privileges == False):
+            return redirect('Home')
+        return super(MenuView, self).render_to_response(context)
 
     def form_valid(self, form):
         return super(MenuView, self).form_valid(form)
 
-@method_decorator(login_required, name="dispatch")
+
 class MenuDetailView(DetailView):
     model = Menu
     template_name = "ver_menu.html"
@@ -127,32 +130,43 @@ class MenuDetailView(DetailView):
     def render_to_response(self, context):
         return super(MenuDetailView, self).render_to_response(context)
 
+@method_decorator(login_required, name="dispatch")
 class RegisterView(CreateView):
     form_class = UserCreationForm
     # Main form class for the view
     template_name = 'register.html'
     def get_context_data(self, **kwargs):
         context = super(RegisterView, self).get_context_data(**kwargs)
+        context["error"] = None
         if self.request.method == 'POST':
             form = UserRegistrationForm(self.request.POST)
             if form.is_valid():
                 # Validate if the form is valid
                 username = form.cleaned_data.get('username')
                 password = form.cleaned_data.get('password')
-                user = User.objects.create_user(username, '', password)
                 privilege = bool(self.request.POST.get('privilege',False))
                 name = form.cleaned_data.get('name')
-                profile = Profile.objects.create(user_id= user.id,name=name,privileges=privilege)
-                user.save()
-                profile.save()
-                # Create and save the Profile object created
+                try:
+                    user = User.objects.create_user(username, '', password)
+                    profile = Profile.objects.create(user_id= user.id,name=name,privileges=privilege)
+                    user.save()
+                    profile.save()
+                    context["error"] = False
+                except:
+                    context["error"] = True
+                # Create and save the User and Profile object created
             else:
                 print(form.errors)
         else:
             form = UserRegistrationForm()
         context['form'] = form
         return context
-    
+
+    def render_to_response(self, context):
+        if (self.request.user.profile.privileges == False):
+            return redirect('Home')
+        return super(RegisterView, self).render_to_response(context)
+
     def form_valid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
 

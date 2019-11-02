@@ -38,7 +38,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#bdbudykt7xv=3j1z+8nex2-8w6v9=6_%g-su!@dc^&u!yy#87'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['localhost','127.0.0.1',get_Host_name_IP()]
 LOGIN_URL = "/accounts/login"
 LOGIN_REDIRECT_URL = "/"
@@ -146,7 +146,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join("csweb", 'static'),)
 SLACK_TOKEN = 'xoxb-804855088449-813495079172-vonUoHdsppPECWiQxQ9khdef'
-SLACK_CHANNEL = '#test'
+SLACK_CHANNEL = '#almuerzo'
 SLACK_USERNAME = "Nora"
 SLACK_ICON_URL = 'https://www.pinclipart.com/picdir/middle/1-15446_woman-women-working-clipart-kid-user-icon-png.png'
 SLACK_BACKEND = 'django_slack.backends.CeleryBackend'

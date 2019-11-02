@@ -53,8 +53,8 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="">
-          <span>Ver pedidos</span></a>
+        <a class="nav-link" href="{% url "Register" %}"
+          <span>Crear usuario</span></a>
       </li>
 
 
@@ -77,9 +77,13 @@
           <h1 class="h3 mb-0 text-gray-800">{% block title %}{% endblock %}</h1>
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
-            
-            <li class="nav-item dropdown no-arrow">
-                <a class="btn btn-outline-danger btn-lg " href="#" data-toggle="modal" data-target="#logoutModal">
+            <li class="d-flex nav-item" style= "padding-right: 1rem;">
+                <div class="d-flex p-2">Hola, {{ user.profile.name }}</div>
+            </li>
+            <li class="nav-item">
+            </li>
+            <li class="nav-item">
+                <a class="btn btn-outline-danger" href="#" data-toggle="modal" data-target="#logoutModal">
                     <i class="fas fa-sign-out-alt"></i>
                     Cerrar sesión
                   </a>

@@ -2,7 +2,20 @@
 {% load static %}
 {% load widget_tweaks %}
 {% block title %}Registro de usuarios{% endblock %}
+{% block web_title %}Meal Delivery - Registro{% endblock %}
 {% block content %}
+
+{% if error %}
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>Ups!</strong> Ya existe un usuario con este nombre</a>.
+</div>
+{% elif error is not True and error is not None %}
+<div class="alert alert-success alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>Yay!</strong> Se ha creado el usuario exitosamente</a>.
+</div>
+{% endif %}
 <p>Desde aquí puedes crear nuevos usuarios</p>
   <form method="post">
     {% csrf_token %}
