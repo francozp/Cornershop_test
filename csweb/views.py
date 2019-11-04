@@ -14,9 +14,6 @@ import uuid
 import datetime
 import socket 
 
-# ------------ MAIN TO-DO List ----------------
-# TODO: Nora can edit the menu (before 9am of the day)
-
 def parse_food(option, number, maindish, show_option = True):
     """ Parse the option, maindish, salad and dessert
 

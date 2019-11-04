@@ -9,11 +9,6 @@ class MenuForm(forms.Form):
     salad = forms.BooleanField(label = "Ensalada", widget=forms.CheckboxInput(), initial=True, required=False)
     dessert = forms.BooleanField(label = "Postre", widget=forms.CheckboxInput(), initial=True, required=False)
 
-class EditMenuForm(forms.Form):
-    maindish = forms.CharField(label = "Plato Principal", widget=forms.Select(attrs={'required': True}))
-    salad = forms.BooleanField(label = "Ensalada", widget=forms.CheckboxInput(), initial=True, required=False)
-    dessert = forms.BooleanField(label = "Postre", widget=forms.CheckboxInput(), initial=True, required=False)
-
 class ModalForm(forms.Form):
     # Form for dish creation
     newdish = forms.CharField(label = "Plato Principal", widget=forms.TextInput())    
@@ -34,4 +29,3 @@ class UserRegistrationForm(forms.Form):
         
 MenuFormSet = forms.formset_factory(MenuForm, can_delete=True)
 ModalFormSet = forms.formset_factory(ModalForm, can_delete=True)
-EditFormSet = forms.formset_factory(EditMenuForm, can_delete=True)
