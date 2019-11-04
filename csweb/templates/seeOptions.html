@@ -9,34 +9,35 @@
 {% block web_title %}Meal Delivery - Opciones{% endblock %}
 {% block content %}
 <table id="tabla-stock">
-        <thead>
-            <th>Nombre</th>
-            <th>Fecha</th>
-            <th>Plato principal</th>
-            <th>Ensalada</th>
-            <th>Postre</th>
-            <th>Detalle</th>
-        </thead>
+    <thead>
+        <th>Nombre</th>
+        <th>Fecha</th>
+        <th>Plato principal</th>
+        <th>Ensalada</th>
+        <th>Postre</th>
+        <th>Detalle</th>
+    </thead>
     
-        <tbody>
-        {% if useroption %}
-        {% for menu,option,profile,dish,detail in useroption %}
-            <tr>
-                <td>{{ profile.name }}</td>
-                <td>{{ menu.fecha }}</td>
-                <td>{{ dish.description }}</td>
-                <td>{% if option.salad %}Si{% else %}No{% endif %}</td>
-                <td>{% if option.dessert %}Si{% else %}No{% endif %}</td>
-                <td>{{ detail }}</td>
-            </tr>
-    
-          {% endfor %}
-    
-        {% else %}
-          <p>No hay nada.</p>
-        {% endif %}
-        </tbody>
-    </table>
+    <tbody>
+    {% if useroption %}
+    <!-- If the user options exist -->
+    {% for menu,option,profile,dish,detail in useroption %}
+      <!-- Show the user options -->
+      <tr>
+          <td>{{ profile.name }}</td>
+          <td>{{ menu.fecha }}</td>
+          <td>{{ dish.description }}</td>
+          <td>{% if option.salad %}Si{% else %}No{% endif %}</td>
+          <td>{% if option.dessert %}Si{% else %}No{% endif %}</td>
+          <td>{{ detail }}</td>
+      </tr>
+    {% endfor %}
+      
+    {% else %}
+      <p>No hay nada.</p>
+    {% endif %}
+    </tbody>
+</table>
 
 
 {% endblock %}

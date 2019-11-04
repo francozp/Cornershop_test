@@ -18,33 +18,34 @@
 </div>
 {% endif %}
 <p>Desde aquí puedes crear nuevos usuarios</p>
-  <form method="post">
-    {% csrf_token %}
-      <p>
-        Usuario<br>
-        {{ form.username  | add_class:"form-control" }}
-      </p>
-      <p>
-        Nombre<br>
-        {{ form.name  | add_class:"form-control" }}
-      </p>
-      <p>
-        Privilegios<br>
-        {{ form.privilege  | add_class:"form-control" }}
-      </p>
-      <!-- Password  -->
-      <p>
-          Contraseña<br>
-          {{ form.password  | add_class:"form-control" }}
-      </p>
-      <p>
-        Confirmar contraseña<br>
-        {{ form.confirm_password  | add_class:"form-control" }}
-        <span id='error'></span>
-      </p>
-    <button type="submit" class="btn btn-block btn-danger btn-lg" name = "submit" id="submit">Crear Usuario</button>
-    
-  </form>
+<form method="post">
+  <!-- Form to create a new user -->
+  {% csrf_token %}
+    <p>
+      Usuario<br>
+      {{ form.username  | add_class:"form-control" }}
+    </p>
+    <p>
+      Nombre<br>
+      {{ form.name  | add_class:"form-control" }}
+    </p>
+    <p>
+      Privilegios<br>
+      {{ form.privilege  | add_class:"form-control" }}
+    </p>
+    <!-- Password  -->
+    <p>
+        Contraseña<br>
+        {{ form.password  | add_class:"form-control" }}
+    </p>
+    <p>
+      Confirmar contraseña<br>
+      {{ form.confirm_password  | add_class:"form-control" }}
+      <span id='error'></span>
+    </p>
+  <button type="submit" class="btn btn-block btn-danger btn-lg" name = "submit" id="submit">Crear Usuario</button>
+  
+</form>
 {% endblock %}
 
 

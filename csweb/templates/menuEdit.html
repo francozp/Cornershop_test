@@ -15,27 +15,27 @@
           <h6 class="m-0 font-weight-bold text-dark" style = "padding-bottom: 1rem;">Opciones</h6>
           {% for option, obj in menu %}
           <!-- Show the options on the menu with the buttons to delete and edit -->
-            <div class="row no-gutters align-items-center" style="padding-left: 2rem;">
-              <div class="col mr-2">
-                      {{ option }}<!-- Generate the choice fields  -->
-              </div>
-              <div class="col-auto">
-                  <input type="hidden" id="option_id" name="option_{{ obj.menu_option}}" value="{{ obj.option_id }}">
-                  <button name="button_{{ obj.menu_option}}" value="pressed" type="submit" class="btn"><i class="far fa-edit" style="color: rgb(0, 108, 209);font-size: 1.5em;"></i></button>
-                  <a href="{% url "delete" obj.option_id %}" class="btn" title="Eliminar opción"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></a>
-              </div>
+          <div class="row no-gutters align-items-center" style="padding-left: 2rem;">
+            <div class="col mr-2">
+                    {{ option }}<!-- Generate the choice fields  -->
             </div>
+            <div class="col-auto">
+                <input type="hidden" id="option_id" name="option_{{ obj.menu_option}}" value="{{ obj.option_id }}">
+                <button name="button_{{ obj.menu_option}}" value="pressed" type="submit" class="btn"><i class="far fa-edit" style="color: rgb(0, 108, 209);font-size: 1.5em;"></i></button>
+                <a href="{% url "delete" obj.option_id %}" class="btn" title="Eliminar opción"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></a>
+            </div>
+          </div>
           {% endfor %}
       </div>
 </form>
-    <form method="post" action="{% url 'addMenuOptions' %}">
-      <!-- Form to add new options to the menu (go to addMenuOptions view) -->
-      {% csrf_token %}
-      <div class="card-footer">
-        <button type="submit" name="addOption" value="{{ object.menu_id }}" class="btn btn-secondary">Agregar opciones</button>
-      </div>
-    </form>
-  </div>
+      <form method="post" action="{% url 'addMenuOptions' %}">
+        <!-- Form to add new options to the menu (go to addMenuOptions view) -->
+        {% csrf_token %}
+        <div class="card-footer">
+          <button type="submit" name="addOption" value="{{ object.menu_id }}" class="btn btn-secondary">Agregar opciones</button>
+        </div>
+      </form>
+</div>
 
 <div class="modal fade" id="myModal" role="dialog">
   <!-- Modal used to edit an option -->
@@ -69,7 +69,7 @@
                 <button type="submit" name="option_id" value="{{ option }}" class="btn btn-danger">Confirmar edición</button>
               </div>
           </form>
-        </div>
+      </div>
   </div>
 </div>
 {% endblock %}
