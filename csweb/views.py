@@ -155,12 +155,18 @@ class MenuEditView(FormMixin, DetailView):
                 main = MainDish.objects.get(main_id = option.main_id)
                 context["main"] = main.description
                 context["dessert"] = option.dessert
+                context["option"] = option_id
                 if( option.salad ):
                     context["salad"] = "checked"
                 if( option.dessert ):
                     context["dessert"] = "checked"
                 context["successful_submit"] = True
             else:
+                option = Options.objects.get(option_id = self.request.POST["option_id"])
+                option.main_id = MainDish.objects.get(description = self.request.POST["maindish"]).main_id
+                option.salad= bool(self.request.POST.get("salad",False))
+                option.dessert = bool(self.request.POST.get("dessert",False))
+                option.save()
                 context["successful_submit"] = False
             
         options = Options.objects.filter(menu_id = context["object"].menu_id)
@@ -169,7 +175,7 @@ class MenuEditView(FormMixin, DetailView):
         options = sorted(options, key=lambda x: x.menu_option)
         # Sort the options based on the menu_option number
         for option in options:
-            dish = MainDish.objects.filter(main_id = option.main_id)[0].description
+            dish = MainDish.objects.get(main_id = option.main_id).description
             # Look for the maindish of the option
             opt = parse_food(option, option.menu_option, dish)
             # Parse the food
@@ -187,7 +193,7 @@ class MenuEditView(FormMixin, DetailView):
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        return super(MenuEditView, self).form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form)) 
 
     def render_to_response(self, context):
         if (self.request.user.profile.privileges == False):
