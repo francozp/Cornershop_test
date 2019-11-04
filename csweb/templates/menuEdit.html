@@ -1,123 +1,82 @@
 {%  extends "base.html" %}
 {% load static %}
-{% block script %}
-<!-- The following scripts are necessary for the use of the datepicker and the selectizer  -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js" integrity="sha256-VBLiveTKyUZMEzJd6z2mhfxIqz3ZATCuVMawPZGzIfA=" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-{% endblock %}
+{% load widget_tweaks %}
 {% block title %}Editar Menú{% endblock %}
 {% block web_title %}Meal Delivery - Editar menú{% endblock %}
 {% block content %}
 <form method="post" class="post-form">
-        {% csrf_token %}
-        <div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
-            <div class="card-header bg-secondary">
-                <h5 class="card-title text-white">Menú de {{ object.fecha }}</h5>
+  <!-- Form to delete and edit the options -->
+  {% csrf_token %}
+  <div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
+      <div class="card-header bg-secondary">
+          <h5 class="card-title text-white">Menú de {{ object.fecha }}</h5>
+      </div>
+      <div class="card-body">
+          <h6 class="m-0 font-weight-bold text-dark" style = "padding-bottom: 1rem;">Opciones</h6>
+          {% for option, obj in menu %}
+          <!-- Show the options on the menu with the buttons to delete and edit -->
+            <div class="row no-gutters align-items-center" style="padding-left: 2rem;">
+              <div class="col mr-2">
+                      {{ option }}<!-- Generate the choice fields  -->
+              </div>
+              <div class="col-auto">
+                  <input type="hidden" id="option_id" name="option_{{ obj.menu_option}}" value="{{ obj.option_id }}">
+                  <button name="button_{{ obj.menu_option}}" value="pressed" type="submit" class="btn"><i class="far fa-edit" style="color: rgb(0, 108, 209);font-size: 1.5em;"></i></button>
+                  <a href="{% url "delete" obj.option_id %}" class="btn" title="Eliminar opción"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></a>
+              </div>
             </div>
-            <div class="card-body">
-                    <h6 class="m-0 font-weight-bold text-dark" style = "padding-bottom: 1rem;">Opciones</h6>
-                    {% for option, obj in menu %}
-                <div class="row no-gutters align-items-center" style="padding-left: 2rem;">
-                <div class="col mr-2">
-                        {{ option }}<!-- Generate the choice fields  -->
-                </div>
-                <div class="col-auto">
-                    <input type="hidden" id="option_id" name="option_{{ obj.menu_option}}" value="{{ obj.option_id }}">
-                    <button name="button_{{ obj.menu_option}}" value="pressed" type="submit" class="btn"><i class="far fa-edit" style="color: rgb(0, 108, 209);font-size: 1.5em;"></i></button>
-                    <a href="{% url "delete" obj.option_id %}" class="btn" title="Eliminar opción"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></a>
-                </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="card-footer">
-                    <a href="#" class="btn btn-secondary add_option">Agregar opciones</a>
-            </div>
-        </div>
+          {% endfor %}
+      </div>
 </form>
-        {% if add %}
-        <!-- Table -->
-        <table class="table table-striped">
-          <thead>
-          <!-- Table-head -->    
-          <tr>
-              <th style = "text-align: center">Opción</th>
-              <th style = "text-align: center">Plato principal</th>
-              <th style = "text-align: center">Ensalada</th>
-              <th style = "text-align: center">Postre</th>
-          </tr>
-          </thead>
-          <tbody id="tablaOpciones">
-              <!-- Table-body -->
-              {% for form in options %}
-                  <tr id=0>
-                      <td style = "text-align: center">1</td>
-                      <td> {{ form.maindish }} </td>
-                      <td style="text-align: center">{{ form.salad }}</td>
-                      <td style="text-align: center">{{ form.dessert }}</td>
-                  </tr>
-              {% endfor %}
-          </tbody>
-          
-        </table>
-        <div class="row">
-                <div class="col-4">
-                    <a href="#" class="btn btn-secondary btn-lg add_option"><i class="fa fa-plus-circle"></i> Agregar otra opción</a>
-                </div>
-                <div class="col-4">
-                </div>
-                <div class="col-4">
-                    <input style="float: right;" type="submit" value="Editar Menú" class="btn btn-danger btn-lg">
+    <form method="post" action="{% url 'addMenuOptions' %}">
+      <!-- Form to add new options to the menu (go to addMenuOptions view) -->
+      {% csrf_token %}
+      <div class="card-footer">
+        <button type="submit" name="addOption" value="{{ object.menu_id }}" class="btn btn-secondary">Agregar opciones</button>
+      </div>
+    </form>
+  </div>
+
+<div class="modal fade" id="myModal" role="dialog">
+  <!-- Modal used to edit an option -->
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Editar opción</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+          <!-- Form to edit the option selected -->
+          <form method="post" class="post-form">
+              {% csrf_token %}
+              <div class="form-group">
+                <div class = "row">
+                  <div class = "col-8">
+                    Plato principal
+                    <select name="maindish" class="form-control" required id="id_form-0-maindish"><option value="{{ main }}" selected="selected">{{ main }}</option></select></select>
+                  </div>
+                  <div class = "col-2" style="text-align: center;">
+                    Ensalada
+                    <input type="checkbox" name="salad" id="id_salad" {{ salad }}>
+                  </div>
+                  <div class = "col-2" style="text-align: center;">
+                    Postre
+                    <input type="checkbox" name="dessert" id="id_dessert"  {{ dessert }}>
+                  </div>
                 </div>
               </div>
-        {% endif %}
-        <div class="modal fade" id="myModal" role="dialog">
-                <div class="modal-dialog">
-                
-                  <!-- Modal content-->
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h4 class="modal-title">Editar opción</h4>
-                      <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Dish form, used to dish creation -->
-                        <form method="post" class="post-form">
-                            {% csrf_token %}
-                            <div class="modal-body">
-                              <div class="form-group">
-                                <div class = "row">
-                                <div class = "col-8">
-                                  Plato principal
-                                    <select name="maindish" class="form-control" required id="id_form-0-maindish"><option value="{{ main }}" selected="selected">{{ main }}</option></select></select>
-                                </div>
-                                <div class = "col-2" style="text-align: center;">
-                                  Ensalada
-                                    <input type="checkbox" name="salad" id="id_salad" {{ salad }}>
-                                </div>
-                                <div class = "col-2" style="text-align: center;">
-                                  Postre
-                                    <input type="checkbox" name="dessert" id="id_dessert"  {{ dessert }}>
-                                </div>
-                                </div>
-                              </div>
-                            <div class="modal-footer border-top-0 d-flex justify-content-center">
-                              <button type="submit" name="option_id" value="{{ option }}" class="btn btn-danger">Confirmar edición</button>
-                            </div>
-                          </form>
-                    </div>
-                  </div>
-                  
-                </div>
+              <div class="modal-footer border-top-0 d-flex justify-content-center">
+                <button type="submit" name="option_id" value="{{ option }}" class="btn btn-danger">Confirmar edición</button>
+              </div>
+          </form>
+        </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block jsincludes %}
-<!-- JS added for selectize and other functionality -->
-<script src="{% static "js/selectize.min.js" %}"></script>
-<script src="{% static "js/scriptMenu.js" %}"></script>
-<link rel="stylesheet" href="{% static "css/selectize.bootstrap3.css" %}">
 {% if successful_submit %}
+<!-- Show the modal if the edit button is pressed -->
     <script type="text/javascript">
         $(document).ready(function(){
             $("#myModal").modal('show');

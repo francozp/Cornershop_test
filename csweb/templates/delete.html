@@ -6,8 +6,19 @@
 {% block title %}Eliminar opción{% endblock %}
 {% block content %}
 <form action= "" method="POST">
-    {% csrf_token %}
-    <p>¿Estás seguro que quieres eliminar la opción? {{ option.option_id }}</p>
-    <input type="submit" value="Delete"/>
+        {% csrf_token %}
+    <div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
+        <div class="card-header bg-secondary">
+            <h5 class="card-title text-white">¿Estás seguro que deseas eliminar la opción?</h5>
+        </div>
+        <div class="card-body">
+            Esa opción se veía sabrosa
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-danger " value="Delete">Eliminar opción</button>
+        </div>
+    </div>
+    
+    <p></p>
 </form>
 {% endblock %}

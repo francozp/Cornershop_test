@@ -1,0 +1,73 @@
+{%  extends "base.html" %}
+{% load static %}
+{% block script %}
+<!-- The following scripts are necessary for the use of the datepicker and the selectizer  -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js" integrity="sha256-VBLiveTKyUZMEzJd6z2mhfxIqz3ZATCuVMawPZGzIfA=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+{% endblock %}
+{% load widget_tweaks %}
+<!-- Render fields with style+ -->
+{% block title %}Agregar Opciones{% endblock %}
+{% block web_title %}Meal Delivery - Agregar Opciones{% endblock %}
+{% block content %}
+<div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
+    <div class="card-header bg-secondary">
+        <h5 class="card-title text-white">Menú actual</h5>
+    </div>
+    <div class="card-body">
+            <h6 class="m-0 font-weight-bold text-dark" style = "padding-bottom: 1rem;">Opciones</h6>
+            {% for option, obj in menu %}
+        <div class="row no-gutters align-items-center" style="padding-left: 2rem;">
+        <div class="col mr-2">
+                {{ option }}<!-- Generate the choice fields  -->
+        </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<br>
+ <!-- Main Form, use to add options to the menu -->
+ <form  method="post" class="post-form">
+   {% csrf_token %}
+   {{ options.management_form }}
+    <!-- Render the management form -->
+   <table class="table table-striped">
+     <thead> 
+     <tr>
+         <th style = "text-align: center">Opción</th>
+         <th style = "text-align: center">{{ form.maindish.label }}</th>
+         <th style = "text-align: center">{{ form.salad.label }}</th>
+         <th style = "text-align: center">{{ form.dessert.label }}</th>
+     </tr>
+     </thead>
+     <tbody id="tablaOpciones">
+         <!-- Table-body -->
+         {% for form in options %}
+         <!-- Iterate over the forms -->
+             <tr id=0>
+                 <td style = "text-align: center">1</td>
+                 <td> {{ form.maindish | add_class:'form-control' }} </td>
+                 <td style="text-align: center">{{ form.salad }}</td>
+                 <td style="text-align: center">{{ form.dessert }}</td>
+             </tr>
+         {% endfor %}
+     </tbody>
+   </table>
+     <div class="row">
+         <div class="col-4">
+             <a href="#" class="btn btn-secondary btn-lg add_option"><i class="fa fa-plus-circle"></i> Agregar otra opción</a>
+         </div>
+         <div class="col-4">
+             <input style="float: left;" type="submit" value="Agregar opciones" class="btn btn-danger btn-lg">
+         </div>
+       </div>
+ </form>
+{% endblock %}
+
+{% block jsincludes %}
+<!-- JS added for selectize and other functionality -->
+<script src="{% static "js/selectize.min.js" %}"></script>
+<script src="{% static "js/scriptEdit.js" %}"></script>
+<link rel="stylesheet" href="{% static "css/selectize.bootstrap3.css" %}">
+{% endblock %}

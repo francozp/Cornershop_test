@@ -12,6 +12,7 @@ urlpatterns = [
     path('menu_list', views.MenuListView.as_view(), name = "MenuList"),
     path('editMenu/<pk>',views.MenuEditView.as_view(),name="editMenu"),
     path('editMenu/delete/<pk>', views.OptionDeleteView.as_view(), name='delete'),
+    path('addOptions',views.AddOptionsView.as_view(), name="addMenuOptions"),
 ]
 # API URLS
 urlpatterns += [

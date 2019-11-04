@@ -134,6 +134,63 @@ class MenuView(FormView):
         return super(MenuView, self).form_valid(form)
 
 @method_decorator(login_required, name="dispatch")
+class AddOptionsView(FormView):
+    form_class = MenuForm
+    template_name = "addOptions.html"
+    def get_context_data(self, **kwargs):
+        context = super(AddOptionsView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            req = self.request.POST
+            if "addOption" in req:
+                self.request.session["menuid"] = req["addOption"]
+            else:
+                formset = MenuFormSet(req)
+                if formset.is_valid():
+                    maxforms = int(self.request.POST['form-TOTAL_FORMS'])
+                    idmenu = str(self.request.session['menuid'])
+                    actual_options = Options.objects.filter(menu_id = idmenu)
+                    max_opt = max(actual_options, key=lambda x: x.menu_option)
+                    last = max_opt.menu_option
+                    cont = 1
+                    for i in range(maxforms):
+                        # Iterate over the different options and create them
+                        maindish = str(self.request.POST['form-{0}-maindish'.format(i)])
+                        actual_dishes = MainDish.objects.get(description = maindish)
+                        idmain = actual_dishes.main_id
+                        idoption = str(uuid.uuid4())
+                        salad = bool(self.request.POST.get('form-{0}-salad'.format(i),False))
+                        dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
+                        option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert,menu_option=last + cont)
+                        cont += 1
+                else:
+                    print(formset.errors)
+
+        menuid = self.request.session['menuid']
+        options = Options.objects.filter(menu_id = menuid)
+        # Search the options for the menu with menu_id
+        opts = []
+        options = sorted(options, key=lambda x: x.menu_option)
+        # Sort the options based on the menu_option number
+        for option in options:
+            dish = MainDish.objects.get(main_id = option.main_id).description
+            # Look for the maindish of the option
+            opt = parse_food(option, option.menu_option, dish)
+            # Parse the food
+            opts.append(opt)
+        context["menu"] = zip(opts,options)
+        context["options"] = MenuFormSet()
+        return context
+
+    def render_to_response(self, context):
+        if (self.request.user.profile.privileges == False):
+            # Validate if the user has the privileges
+            return redirect('Home')
+        return super(AddOptionsView, self).render_to_response(context)
+
+    def form_valid(self, form):
+        return super(AddOptionsView, self).form_valid(form)
+
+@method_decorator(login_required, name="dispatch")
 class MenuEditView(FormMixin, DetailView):
     model = Menu
     template_name = "menuEdit.html"
@@ -149,7 +206,7 @@ class MenuEditView(FormMixin, DetailView):
                 if opt in req:
                     option_id = self.request.POST["option_"+str(i)]
                     break
-            
+        
             if not form.is_valid():
                 option = Options.objects.get(option_id = option_id)
                 main = MainDish.objects.get(main_id = option.main_id)
@@ -168,7 +225,7 @@ class MenuEditView(FormMixin, DetailView):
                 option.dessert = bool(self.request.POST.get("dessert",False))
                 option.save()
                 context["successful_submit"] = False
-            
+        
         options = Options.objects.filter(menu_id = context["object"].menu_id)
         # Search the options for the menu with menu_id
         opts = []
@@ -265,7 +322,12 @@ class OptionDeleteView(DeleteView):
     template_name = "delete.html"
     # template to delete confirmation
     context_object_name = "option"
-    success_url = reverse_lazy("MenuList")
+    def get_success_url(self):
+        success_url = reverse_lazy("editMenu", kwargs={'pk': self.object.menu_id})
+        if success_url:
+            return success_url
+        else:
+            return super(OptionDeleteView, self).get_success_url()
     # where to redirect after delete the item
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
