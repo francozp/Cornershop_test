@@ -10,9 +10,8 @@
 {% block title %}Editar Menú{% endblock %}
 {% block web_title %}Meal Delivery - Editar menú{% endblock %}
 {% block content %}
-<form action="{% url 'Menu' %}" method="post">
+<form method="post" class="post-form">
         {% csrf_token %}
-        {{ options.management_form }}
         <div class="card border-bottom-danger shadow mx-auto" style="width: 40rem;">
             <div class="card-header bg-secondary">
                 <h5 class="card-title text-white">Menú de {{ object.fecha }}</h5>
@@ -25,21 +24,18 @@
                         {{ option }}<!-- Generate the choice fields  -->
                 </div>
                 <div class="col-auto">
-                    <button class="btn" value = "{{ obj.option_id }}"><i class="far fa-edit" style="color: rgb(0, 108, 209);font-size: 1.5em;"></i></button>
-                    <button class="btn" vhref="editMenu/{{ menu.menu_id }}"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></button>
-                    <a href="{% url "delete" obj.option_id %}" class="btn"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></a>
+                    <input type="hidden" id="option_id" name="option_{{ obj.menu_option}}" value="{{ obj.option_id }}">
+                    <button name="button_{{ obj.menu_option}}" value="pressed" type="submit" class="btn"><i class="far fa-edit" style="color: rgb(0, 108, 209);font-size: 1.5em;"></i></button>
+                    <a href="{% url "delete" obj.option_id %}" class="btn" title="Eliminar opción"><i class="far fa-trash-alt" style="color: tomato;font-size: 1.5em;"></i></a>
                 </div>
                 </div>
                 {% endfor %}
             </div>
             <div class="card-footer">
-                <div class="row">
-                    <div class="col-4">
-                            <a href="#" class="btn btn-secondary btn-lg add_option">Agregar opciones</a>
-                    </div>
-                </div>
+                            <a href="#" class="btn btn-secondary add_option">Agregar opciones</a>
             </div>
         </div>
+</form>
         {% if add %}
         <!-- Table -->
         <table class="table table-striped">
@@ -76,6 +72,44 @@
                 </div>
               </div>
         {% endif %}
+        <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Editar opción</h4>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Dish form, used to dish creation -->
+                        <form method="post" class="post-form">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                              <div class="form-group">
+                                <div class = "row">
+                                <div class = "col-8">
+                                  Plato principal
+                                    <select name="maindish" class="form-control" required id="id_maindish"><option value="{{ main }}" selected="selected">{{ main }}</option></select></select>
+                                </div>
+                                <div class = "col-2" style="text-align: center;">
+                                  Ensalada
+                                    <input type="checkbox" name="salad" id="id_salad" {{ salad }}>
+                                </div>
+                                <div class = "col-2" style="text-align: center;">
+                                  Postre
+                                    <input type="checkbox" name="dessert" id="id_dessert"  {{ dessert }}>
+                                </div>
+                                </div>
+                              </div>
+                            <div class="modal-footer border-top-0 d-flex justify-content-center">
+                              <button type="submit" class="btn btn-danger">Confirmar edición</button>
+                            </div>
+                          </form>
+                    </div>
+                  </div>
+                  
+                </div>
 {% endblock %}
 
 {% block jsincludes %}
@@ -83,4 +117,11 @@
 <script src="{% static "js/selectize.min.js" %}"></script>
 <script src="{% static "js/scriptMenu.js" %}"></script>
 <link rel="stylesheet" href="{% static "css/selectize.bootstrap3.css" %}">
+{% if successful_submit %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#myModal").modal('show');
+        });
+    </script>
+{% endif %}
 {% endblock %}

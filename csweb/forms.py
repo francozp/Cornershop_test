@@ -11,7 +11,7 @@ class MenuForm(forms.Form):
 
 class ModalForm(forms.Form):
     # Form for dish creation
-    newdish = forms.CharField(label = "Plato Principal", widget=forms.TextInput())
+    newdish = forms.CharField(label = "Plato Principal", widget=forms.TextInput())    
     
 class OptionForm(forms.Form):
     option = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'form-check-input'}), choices=[])
@@ -26,6 +26,6 @@ class UserRegistrationForm(forms.Form):
     class Meta:
         model = User
         fields = ('username','password','name','rut','privilege')
-
+        
 MenuFormSet = forms.formset_factory(MenuForm, can_delete=True)
 ModalFormSet = forms.formset_factory(ModalForm, can_delete=True)

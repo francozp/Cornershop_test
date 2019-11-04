@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, FormView, ListView, DetailView,CreateView,DeleteView
+from django.views.generic.edit import FormMixin
 from django_slack import slack_message
 from .tasks import slack_msg
 from django.contrib.auth.forms import UserCreationForm
@@ -14,7 +15,6 @@ import datetime
 import socket 
 
 # ------------ MAIN TO-DO List ----------------
-# TODO: Create the main screen
 # TODO: Nora can edit the menu (before 9am of the day)
 
 def parse_food(option, number, maindish, show_option = True):
@@ -134,11 +134,35 @@ class MenuView(FormView):
         return super(MenuView, self).form_valid(form)
 
 @method_decorator(login_required, name="dispatch")
-class MenuEditView(DetailView):
+class MenuEditView(FormMixin, DetailView):
     model = Menu
     template_name = "menuEdit.html"
+    form_class = MenuForm
     def get_context_data(self, **kwargs):
         context = super(MenuEditView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            form = self.get_form()
+            req = self.request.POST
+            qty = len(req)
+            for i in range(1,qty):
+                opt = "button_" + str(i)
+                if opt in req:
+                    option_id = self.request.POST["option_"+str(i)]
+                    break
+            
+            if not form.is_valid():
+                option = Options.objects.get(option_id = option_id)
+                main = MainDish.objects.get(main_id = option.main_id)
+                context["main"] = main.description
+                context["dessert"] = option.dessert
+                if( option.salad ):
+                    context["salad"] = "checked"
+                if( option.dessert ):
+                    context["dessert"] = "checked"
+                context["successful_submit"] = True
+            else:
+                context["successful_submit"] = False
+            
         options = Options.objects.filter(menu_id = context["object"].menu_id)
         # Search the options for the menu with menu_id
         opts = []
@@ -152,13 +176,18 @@ class MenuEditView(DetailView):
             opts.append(opt)
         context["menu"] = zip(opts,options)
         # Create a zip with opts and options list to iterate over both in the template
-        if self.request.POST:
-            form_data = MenuFormSet(self.request.POST)
-            context["options"] = MenuFormSet()
-        else:
-            context["options"] = MenuFormSet()
-        
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        return super(MenuEditView, self).form_valid(form)
 
     def render_to_response(self, context):
         if (self.request.user.profile.privileges == False):
