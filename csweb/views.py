@@ -31,7 +31,6 @@ def parse_food(option, number, maindish, show_option = True):
         show_option : bool, optional
             True to show the option number
     """
-
     if show_option:
         msg = "Opción " + str(number) + ": " + str(maindish)
     else:
@@ -48,8 +47,8 @@ def parse_food(option, number, maindish, show_option = True):
         msg += "\n"
     return msg
 
-# NOTE: Needs discussion or investigation -@Franco at 02-11-2019 20:47:12
-# The actual view will stay as it is
+# NOTE: @Franco at 02-11-2019 20:47:12
+# The Home view will stay as it is
 @method_decorator(login_required, name="dispatch")
 class HomeView(TemplateView):
     template_name = "index.html"
@@ -90,14 +89,15 @@ class MenuView(FormView):
                     data["date_error"] = False
                     # If the main form data is vald, then the menu, dish, and options are created
                     maxforms = int(self.request.POST['form-TOTAL_FORMS'])
+                    # Get the total number of forms
                     idmenu = str(uuid.uuid4())
                     menu = Menu.objects.create(menu_id = idmenu, fecha = date)
                     # TODO: Fix options not created
                     for i in range(maxforms):
                         # Iterate over the different options and create them
                         maindish = str(self.request.POST['form-{0}-maindish'.format(i)])
-                        actual_dishes = MainDish.objects.filter(description = maindish)
-                        idmain = actual_dishes[0].main_id
+                        actual_dishes = MainDish.objects.get(description = maindish)
+                        idmain = actual_dishes.main_id
                         idoption = str(uuid.uuid4())
                         salad = bool(self.request.POST.get('form-{0}-salad'.format(i),False))
                         dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
@@ -105,13 +105,15 @@ class MenuView(FormView):
                         msg += parse_food(option, i+1, maindish)
 
                     host_name = socket.gethostname() 
-                    host_ip = socket.gethostbyname(host_name) 
+                    host_ip = socket.gethostbyname(host_name)
+                    # Get host_ip
                     msg += "\nTengan lindo día!\n\n El menú puede verse en http://" + str(host_ip) + ":8000/menu/" + str(idmenu)
                     today = datetime.datetime.now()
                     deliver = datetime.datetime(int(date_list[2]), int(date_list[1]), int(date_list[0]), 9)
                     cdw = (deliver-today).total_seconds()
-                    print("Son " + str(cdw/3600) + " horas")
+                    # Calculate the countdown for the slack message
                     if(cdw< 0):
+                        # If the countdownd is negative, set it to 0 and send the slack message inmediatly
                         cdw = 0
                     slack_msg.apply_async(kwargs={'msg': msg},countdown=int(cdw))
                     # Send the slack msg async using celery (view tasks.py and celery.py). The msg will be send at the 9:00 am of the day asigned to the menu
@@ -141,16 +143,20 @@ class AddOptionsView(FormView):
         context = super(AddOptionsView, self).get_context_data(**kwargs)
         if self.request.POST:
             req = self.request.POST
+            # When the post if from the editMenu view
             if "addOption" in req:
+                #Create menuid in the session
                 self.request.session["menuid"] = req["addOption"]
             else:
                 formset = MenuFormSet(req)
+                # Formset used to add new options
                 if formset.is_valid():
                     maxforms = int(self.request.POST['form-TOTAL_FORMS'])
                     idmenu = str(self.request.session['menuid'])
                     actual_options = Options.objects.filter(menu_id = idmenu)
                     max_opt = max(actual_options, key=lambda x: x.menu_option)
                     last = max_opt.menu_option
+                    # Retrieve the max menu_option in the menu
                     cont = 1
                     for i in range(maxforms):
                         # Iterate over the different options and create them
@@ -202,11 +208,13 @@ class MenuEditView(FormMixin, DetailView):
             req = self.request.POST
             qty = len(req)
             for i in range(1,qty):
+                #Search for the button pressed
                 opt = "button_" + str(i)
                 if opt in req:
+                    #Option i will be edited
                     option_id = self.request.POST["option_"+str(i)]
                     break
-        
+            # If the form is not valid, then retrieve the data to fill the modal
             if not form.is_valid():
                 option = Options.objects.get(option_id = option_id)
                 main = MainDish.objects.get(main_id = option.main_id)
@@ -219,6 +227,7 @@ class MenuEditView(FormMixin, DetailView):
                     context["dessert"] = "checked"
                 context["successful_submit"] = True
             else:
+                # If the form is valid, edit the option
                 option = Options.objects.get(option_id = self.request.POST["option_id"])
                 option.main_id = MainDish.objects.get(description = self.request.POST["maindish"]).main_id
                 option.salad= bool(self.request.POST.get("salad",False))
@@ -269,8 +278,8 @@ class MenuDetailView(DetailView):
         dishes = []
         # Obtain all the dishes on the menu
         for option in sorted_options:
-            dish = MainDish.objects.filter(main_id = option.main_id)
-            dishes.append(dish[0])
+            dish = MainDish.objects.get(main_id = option.main_id)
+            dishes.append(dish)
         menuDetail = zip(sorted_options,dishes)
         # Double list (zip) to iterate over them at the same time (options and dishes)
         context['menu'] = menuDetail
@@ -294,10 +303,10 @@ class SeeOptionsView(TemplateView):
         details = []
         for u_option in user_options:
             # Search for all the information to show (option, profile, menu, dish, detail)
-            option = Options.objects.filter(option_id = u_option.option_id)[0]
-            menu = Menu.objects.filter(menu_id = option.menu_id)[0]
-            profile = Profile.objects.filter(user_id = u_option.user_id)[0]
-            dish = MainDish.objects.filter(main_id = option.main_id)[0]
+            option = Options.objects.get(option_id = u_option.option_id)
+            menu = Menu.objects.get(menu_id = option.menu_id)
+            profile = Profile.objects.get(user_id = u_option.user_id)
+            dish = MainDish.objects.get(main_id = option.main_id)
             detail = u_option.detail
             details.append(detail)
             options.append(option)
@@ -357,7 +366,7 @@ class MenuListView(TemplateView):
             options = sorted(options, key=lambda x: x.menu_option)
             # Sort the options by menu_option number
             for option in options:
-                dish = MainDish.objects.filter(main_id = option.main_id)[0].description
+                dish = MainDish.objects.get(main_id = option.main_id).description
                 opt = parse_food(option, option.menu_option, dish)
                 opts.append(opt)
                 # create the parsed text
@@ -400,16 +409,16 @@ class OptionView(FormView):
             context["stop"] = False
         try:
             date = datetime.date.today()
-            menu = Menu.objects.filter(fecha = date)
+            menu = Menu.objects.get(fecha = date)
             # find the todays menu
-            options = Options.objects.filter(menu_id = menu[0].menu_id)
+            options = Options.objects.filter(menu_id = menu.menu_id)
             sorted_options = sorted(options, key=lambda x: x.menu_option)
             # Obtain all the dishes on todays menu
             CHOICES = []
             # Generate the choices for the choice field 
             for option in sorted_options:
-                dish = MainDish.objects.filter(main_id = option.main_id)
-                food = parse_food(option, option.menu_option, str(dish[0].description))
+                dish = MainDish.objects.get(main_id = option.main_id)
+                food = parse_food(option, option.menu_option, str(dish.description))
                 # Parse the food choice
                 CHOICES.append((option.option_id, food))
         except:
