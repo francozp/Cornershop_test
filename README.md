@@ -57,6 +57,8 @@ In this system exists two types of users: with privileges or without privileges.
 Now exists only one user: Nora. To login use the following
 > user: nora , Password: testmd
 
+You have to **join to the following slack channel**: <https://join.slack.com/t/cornershopmd/shared_invite/enQtODA4OTM3MTQ3Mjk4LWYyMWQ5ZjM0MDFjZmRiODAxNjZmZmI5ZTg4ODFkNGFjZGFjMjVlYWJiZTY4MzQ0MzRjYzk3ZjE0YWQ0ODc5M2Y> 
+In #almuerzo channel you will receive a remainder at 9:00am CLT of today's menú with a link to it. If menu is created after 11am of the same day, slack message will be delivered inmediatly (debugging purpose) 
 ### System functions
 1. "Elegir Almuerzo": Here the users can choose what they want to eat at lunch (until 11AM CLT), also they can specify any customizations.
 2. "Crear Menu": Here the users with privileges can create a menu for any incoming day with many options (an option considers: main dish, salad and the dessert). Also, user can create new main dishes.
