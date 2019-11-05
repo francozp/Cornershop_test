@@ -10,7 +10,7 @@ Django Project developed for "Cornershop's Backend Test", which consists of a me
 1. Open a terminal (Command Promp on Windows)
 2. cd to the directory where requirements.txt is located
 3. Install required libraries using `pip install -r requirements.txt` in the terminal.
-> Note 1: If you have problems installing the mysqlclient library, you can use the Wheel file (.whl) that is in the directory, which can be installed using `pip install mysqlclient-1.4.4-cp37-cp37m-win32.whl`.
+> Note 1: If you have problems installing the mysqlclient library, you can use the Wheel file (.whl) that is in the directory, which can be installed using `pip install mysqlclient-1.4.4-cp37-cp37m-win32.whl`. Then, go back to the step 3.
 > Note 2: My recommendation is to install all the packages in a virtual environment. Official documentation: <https://docs.python.org/3/library/venv.html>
 ### Installing RabbitMQ
 To send the slack reminders asicronically, Celery needs a broker to process the tasks. RabbitMQ provides this function, so we must install.
