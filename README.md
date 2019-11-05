@@ -70,8 +70,10 @@ To **run** the test:
 1. Open a terminal
 2. cd to the directory where manage.py is located
 3. Run `python manage.py test csweb` 
+### Future Work
+I've been looking for functional testing. I saw different documentation about the selenium package, so i'm thinking in learn more about this and try to implement it into this work.
 
 ## Extras
 
-# Bootstrap Theme
+### Bootstrap Theme
 The Bootstrap theme can be acquired at https://startbootstrap.com/themes/sb-admin-2/
