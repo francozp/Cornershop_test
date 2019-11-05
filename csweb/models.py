@@ -149,7 +149,6 @@ class MainDish(models.Model):
     description = models.TextField()
 
     class Meta:
-        managed = False
         db_table = 'main_dish'
 
 
@@ -158,7 +157,6 @@ class Menu(models.Model):
     fecha = models.DateField()
 
     class Meta:
-        managed = False
         db_table = 'menu'
 
 
@@ -171,7 +169,6 @@ class Options(models.Model):
     menu_option = models.IntegerField()
 
     class Meta:
-        managed = False
         db_table = 'options'
 
 
@@ -181,7 +178,6 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
         db_table = 'profile'
 
 
@@ -191,5 +187,4 @@ class UserOption(models.Model):
     detail = models.TextField()
 
     class Meta:
-        managed = False
         db_table = 'user_option'

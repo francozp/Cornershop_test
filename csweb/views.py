@@ -70,8 +70,7 @@ class MenuView(FormView):
                 maindish = str(self.request.POST['form-0-newdish'])
                 idmain = str(uuid.uuid4())
                 main_dish = MainDish.objects.create(main_id = idmain , description = maindish)
-            else:
-                print(modal_data.errors)
+
             if form_data.is_valid():
                 msg = "Hola!\nDejo el menú de hoy :)\n\n"
                 # Msg to send to slack
@@ -89,7 +88,6 @@ class MenuView(FormView):
                     # Get the total number of forms
                     idmenu = str(uuid.uuid4())
                     menu = Menu.objects.create(menu_id = idmenu, fecha = date)
-                    # TODO: Fix options not created
                     for i in range(maxforms):
                         # Iterate over the different options and create them
                         maindish = str(self.request.POST['form-{0}-maindish'.format(i)])
@@ -114,8 +112,7 @@ class MenuView(FormView):
                         cdw = 0
                     slack_msg.apply_async(kwargs={'msg': msg},countdown=int(cdw))
                     # Send the slack msg async using celery (view tasks.py and celery.py). The msg will be send at the 9:00 am of the day asigned to the menu
-            else:
-                print(form_data.errors)
+
             data['options'] = MenuFormSet()
             data['modal'] = ModalFormSet()
         else:
@@ -165,8 +162,6 @@ class AddOptionsView(FormView):
                         dessert = bool(self.request.POST.get('form-{0}-dessert'.format(i),False))
                         option = Options.objects.create(option_id = idoption, main_id = idmain, menu_id = idmenu, salad = salad, dessert = dessert,menu_option=last + cont)
                         cont += 1
-                else:
-                    print(formset.errors)
 
         menuid = self.request.session['menuid']
         options = Options.objects.filter(menu_id = menuid)
@@ -433,8 +428,6 @@ class OptionView(FormView):
                 userOpt = UserOption.objects.create(user_id= userid, option_id = optionid, detail=detail)
                 # return none tu redirection
                 return None 
-            else:
-                print(form.errors)
         else:
             form = OptionForm()
             form.fields["option"].choices= CHOICES
@@ -486,8 +479,6 @@ class RegisterView(CreateView):
                 except:
                     context["error"] = True
                 # Create and save the User and Profile object created
-            else:
-                print(form.errors)
         else:
             form = UserRegistrationForm()
         context['form'] = form
