@@ -1,56 +1,25 @@
-# Cornershop's Backend Test 
-
-This technical test requires the design and implementation (using Django) of a basic management system to coordinate the meal delivery for Cornershop employees.
-
-## Before you begin
-
-You will need to create a repository using the base project that we provided and invite as collaborators: @varellanov @galitisrael @omenar.
-Should you have any technical questions, please contact osvaldo@cornershopapp.com
-
+# Cornershop's Backend Test
 ## Description
+Django Project developed for "Cornershop's Backend Test", wich consist in a meal delivery system, where a admin user (Nora) should be able to create and edit a menu and send Slack reminders to all chilean employes. The other users (employees) should be able to choose their preferred meal and specify customizations.
 
-The current process consist of a person (Nora) sending a text message via Whatsapp to all the chilean employees, the message contains today's menu with the different alternatives for lunch. 
+## Requirements .txt
+This file includes all the modules that are neccesary for the execution of the project. Packages can be installed using the following command: pip install -r requirements.txt
 
-> Hola!  
-> Dejo el menú de hoy :)
->
-> Opción 1: Pastel de choclo, Ensalada y Postre  
-> Opción 2. Arroz con nugget de pollo, Ensalada y Postre  
-> Opción 3: Arroz con hamburguesa, Ensalada y Postre  
-> Opción 4: Ensalada premium de pollo y Postre  
->
-> Tengan lindo día!
+## Database
+Local MySql DB is used in this project. The sql file to create the database is included.
 
-With the new system, Nora should be able to:
+## Bootstrap Theme
+The Bootstrap theme can be acquired at https://startbootstrap.com/themes/sb-admin-2/
 
-- Create a menu for a specific date.
-- Send a Slack reminder with today's menu to all chilean employees (this process needs to be asynchronous).
+## Celery
+Erlang and RabbitMQ (broker) must be installed to make it work. 
+Windows: Instalation guide can be found in https://www.rabbitmq.com/install-windows.html
+Ubuntu: Install using: apt-get install -y erlang and apt-get install rabbitmq-server
 
-The employees should be able to:
+To execute celery : celery worker -A csweb.celery --loglevel=info --pool=solo -l info
+Start the RabbitMQ service
 
-- Choose their preferred meal (until 11 AM CLT).
-- Specify customizations (e.g. no tomatoes in the salad).
-
-Nora should be the only user to be able to see what the Cornershop employees have requested, and to create and edit today's menu. The employees should be able to specify what they want for lunch but they shouldn't be able to see what others have requested. 
-
-NOTE: The slack reminders must contain an URL to today's menu with the following pattern https://nora.cornershop.io/menu/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (an UUID), this page must not require authentication of any kind.
-
-## Aspects to be evaluated
-
-Since the system is very simple (yet powerful in terms of yumminess) we'll be evaluating, besides functionality, these aspects:
-
-- Testing
-- Documentation
-- Software design
-- Programming style
-- Repository history
-- Appropriate framework use
-
-## Aspects to be ignored
-
-- Visual design of the solution
-- Deployment of the solution
-
-## Restrictions
-
-- The usage of Django's admin is forbidden.
+pip install mysqlclient-1.4.4-cp37-cp37m-win32.whl
+run the rabbitmq server
+celery worker -A csweb.celery -l info -P gevent
+python manage.py runserver 192.168.0.45:8000 --insecure
