@@ -1,2 +1,2 @@
-Django==2.2.2
+Django==2.2.21
 django_slack==5.14.0
